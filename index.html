@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Каталог</title>
+<style>
+  :root{
+    --bg: #0d1117;
+    --panel: #161b22;
+    --panel-2: #1c2129;
+    --line: #2a313c;
+    --text: #eef1f5;
+    --muted: #8b95a3;
+    --accent: #5b8cff;
+    --accent-2: #9fb8ff;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  .wrap{ max-width: 1040px; margin: 0 auto; padding: 40px 24px 96px; }
+  .crumbs{
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .crumbs a{ color: var(--muted); text-decoration: none; }
+  .crumbs a:hover{ color: var(--accent-2); }
+  h1{ font-size: clamp(28px, 4.5vw, 42px); margin: 0 0 28px; font-weight: 700; letter-spacing: -0.02em; }
+
+  /* --- Плитки категорий / моделей --- */
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .tile{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 28px 20px;
+    text-decoration: none;
+    color: var(--text);
+    display:flex; flex-direction:column; gap:8px;
+    transition: border-color .15s, transform .15s;
+  }
+  .tile:hover{ border-color: var(--accent-2); transform: translateY(-2px); }
+  .tile .tile-name{ font-size: 18px; font-weight: 600; }
+  .tile .tile-sub{ font-size: 13px; color: var(--muted); }
+
+  /* --- Товарная страница --- */
+  .layout{ display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; }
+  @media (max-width: 800px){ .layout{ grid-template-columns: 1fr; } }
+  .stage{
+    background: radial-gradient(circle at 30% 20%, #1e2530, var(--panel) 70%);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    aspect-ratio: 1 / 1;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .stage .visual{
+    width: 46%;
+    aspect-ratio: 9/19;
+    border-radius: 34px;
+    border: 2px solid rgba(255,255,255,.14);
+    background: linear-gradient(160deg, var(--v-a, #3a5fce), var(--v-b, #17203a));
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,.6);
+  }
+  .panel{ display:flex; flex-direction:column; gap: 28px; }
+  .group-label{ font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+  .options{ display:flex; flex-wrap: wrap; gap: 8px; }
+  .opt{
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--text);
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .opt:hover{ border-color: var(--accent-2); }
+  .opt.active{ border-color: var(--accent); background: var(--panel-2); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .opt.color-opt{ display:flex; align-items:center; gap:8px; }
+  .swatch{ width: 14px; height:14px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); }
+  .price-block{ margin-top: 8px; padding-top: 24px; border-top: 1px solid var(--line); }
+  .price{ font-size: 40px; font-weight: 700; letter-spacing: -0.01em; }
+  .price-note{ color: var(--muted); font-size: 13px; margin-top: 4px;}
+  .buy{
+    margin-top: 20px; width: 100%; padding: 16px; border: none; border-radius: 12px;
+    background: var(--accent); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer;
+  }
+  .buy:hover{ filter: brightness(1.08); }
+  .state{ color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="crumbs" id="crumbs"></div>
+    <h1 id="pageTitle">Загрузка…</h1>
+    <div id="app"><div class="state">Загружаю каталог…</div></div>
+  </div>
+
+<script>
+const COLOR_HEX = {
+  Blue:   { a: "#4f7cff", b: "#152036" },
+  Orange: { a: "#ff9a4f", b: "#3a2114" },
+  Silver: { a: "#c9d2de", b: "#3b4250" },
+  Black:  { a: "#4a4f58", b: "#0c0d10" },
+  White:  { a: "#f2f4f7", b: "#3b3f46" },
+  Grey:   { a: "#8a8f98", b: "#242731" },
+  "Nickel/Copper": { a: "#c98a5a", b: "#2b1c12" },
+  "Vinca Blue":     { a: "#3f6fae", b: "#101b2c" },
+};
+
+const REGION_LABEL = {
+  JP: "Япония 🇯🇵", HK: "Гонконг 🇭🇰", US: "США 🇺🇸", AE: "ОАЭ 🇦🇪",
+  CN: "Китай 🇨🇳", RU: "Россия 🇷🇺", EU: "Евросоюз 🇪🇺", KR: "Корея 🇰🇷", UK: "Великобритания 🇬🇧",
+};
+
+function fmtPrice(n){ return new Intl.NumberFormat("ru-RU").format(n) + " ₽"; }
+
+const params = new URLSearchParams(location.search);
+const catKey = params.get("cat");
+const modelKey = params.get("model");
+
+function setCrumbs(parts){
+  document.getElementById("crumbs").innerHTML = parts
+    .map((p, i) => i < parts.length - 1 ? `<a href="${p.href}">${p.label}</a> / ` : p.label)
+    .join("");
+}
+
+function renderHome(data){
+  setCrumbs([{label: "Каталог"}]);
+  document.getElementById("pageTitle").textContent = "Каталог";
+  const cats = Object.keys(data);
+  document.getElementById("app").innerHTML = `<div class="grid">
+    ${cats.map(c => `
+      <a class="tile" href="?cat=${encodeURIComponent(c)}">
+        <div class="tile-name">${data[c].name}</div>
+        <div class="tile-sub">${Object.keys(data[c].products).length} моделей</div>
+      </a>`).join("")}
+  </div>`;
+}
+
+function renderCategory(data, cat){
+  const catData = data[cat];
+  if (!catData){
+    document.getElementById("app").innerHTML = "<div class='state'>Категория не найдена.</div>";
+    return;
+  }
+  setCrumbs([{label: "Каталог", href: "?"}, {label: catData.name}]);
+  document.getElementById("pageTitle").textContent = catData.name;
+  const models = Object.keys(catData.products);
+  document.getElementById("app").innerHTML = `<div class="grid">
+    ${models.map(m => `
+      <a class="tile" href="?cat=${encodeURIComponent(cat)}&model=${encodeURIComponent(m)}">
+        <div class="tile-name">${m}</div>
+      </a>`).join("")}
+  </div>`;
+}
+
+function renderProduct(data, cat, model){
+  const catData = data[cat];
+  const product = catData && catData.products[model];
+  if (!product){
+    document.getElementById("app").innerHTML = "<div class='state'>Товар не найден.</div>";
+    return;
+  }
+  setCrumbs([
+    {label: "Каталог", href: "?"},
+    {label: catData.name, href: `?cat=${encodeURIComponent(cat)}`},
+    {label: model},
+  ]);
+  document.getElementById("pageTitle").textContent = model;
+
+  const hasMemory = product.hasMemory;
+  const state = {};
+
+  document.getElementById("app").innerHTML = `
+    <div class="layout">
+      <div class="stage"><div class="visual" id="visual"></div></div>
+      <div class="panel" id="panel"></div>
+    </div>`;
+
+  function currentPriceTree(){
+    return hasMemory ? product.prices[state.memory][state.color] : product.prices[state.color];
+  }
+
+  function refreshDependent(){
+    if (hasMemory){
+      const memories = Object.keys(product.prices);
+      if (!memories.includes(state.memory)) state.memory = memories[0];
+      const colors = Object.keys(product.prices[state.memory]);
+      if (!colors.includes(state.color)) state.color = colors[0];
+      const regions = Object.keys(product.prices[state.memory][state.color]);
+      if (!regions.includes(state.region)) state.region = regions[0];
+    } else {
+      const colors = Object.keys(product.prices);
+      if (!colors.includes(state.color)) state.color = colors[0];
+      const regions = Object.keys(product.prices[state.color]);
+      if (!regions.includes(state.region)) state.region = regions[0];
+    }
+  }
+  refreshDependent();
+
+  function applyVisual(){
+    const hex = COLOR_HEX[state.color] || { a: "#4f7cff", b: "#152036" };
+    const v = document.getElementById("visual");
+    v.style.setProperty("--v-a", hex.a);
+    v.style.setProperty("--v-b", hex.b);
+  }
+
+  function renderPanel(){
+    const memories = hasMemory ? Object.keys(product.prices) : null;
+    const colors = hasMemory ? Object.keys(product.prices[state.memory]) : Object.keys(product.prices);
+    const regions = Object.keys(currentPriceTree());
+    const price = currentPriceTree()[state.region];
+
+    const panel = document.getElementById("panel");
+    panel.innerHTML = `
+      ${hasMemory ? `
+      <div>
+        <div class="group-label">Память</div>
+        <div class="options" id="memOpts">
+          ${memories.map(m => `<button class="opt ${m===state.memory?'active':''}" data-mem="${m}">${m}</button>`).join("")}
+        </div>
+      </div>` : ""}
+      <div>
+        <div class="group-label">Цвет</div>
+        <div class="options" id="colorOpts">
+          ${colors.map(c => `<button class="opt color-opt ${c===state.color?'active':''}" data-color="${c}">
+              <span class="swatch" style="background:${(COLOR_HEX[c]||{a:'#888'}).a}"></span>${c}
+            </button>`).join("")}
+        </div>
+      </div>
+      <div>
+        <div class="group-label">Регион</div>
+        <div class="options" id="regionOpts">
+          ${regions.map(r => `<button class="opt ${r===state.region?'active':''}" data-region="${r}">${REGION_LABEL[r]||r}</button>`).join("")}
+        </div>
+      </div>
+      <div class="price-block">
+        <div class="price">${fmtPrice(price)}</div>
+        <div class="price-note">${[hasMemory?state.memory:null, state.color, REGION_LABEL[state.region]||state.region].filter(Boolean).join(" · ")}</div>
+        <button class="buy">Купить за ${fmtPrice(price)}</button>
+      </div>
+    `;
+
+    if (hasMemory){
+      panel.querySelectorAll("[data-mem]").forEach(btn => btn.onclick = () => {
+        state.memory = btn.dataset.mem; refreshDependent(); applyVisual(); renderPanel();
+      });
+    }
+    panel.querySelectorAll("[data-color]").forEach(btn => btn.onclick = () => {
+      state.color = btn.dataset.color; refreshDependent(); applyVisual(); renderPanel();
+    });
+    panel.querySelectorAll("[data-region]").forEach(btn => btn.onclick = () => {
+      state.region = btn.dataset.region; renderPanel();
+    });
+  }
+
+  applyVisual();
+  renderPanel();
+}
+
+fetch("data/catalog.json", { cache: "no-store" })
+  .then(r => r.json())
+  .then(data => {
+    if (modelKey && catKey) renderProduct(data, catKey, modelKey);
+    else if (catKey) renderCategory(data, catKey);
+    else renderHome(data);
+  })
+  .catch(err => {
+    document.getElementById("app").innerHTML = "<div class='state'>Не удалось загрузить каталог.</div>";
+    console.error(err);
+  });
+</script>
+</body>
+</html>
