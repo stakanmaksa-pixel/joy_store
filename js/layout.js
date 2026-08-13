@@ -73,68 +73,84 @@ async function initMegaMenu() {
     return;
   }
 
-  function clearCol(col){ col.innerHTML = ""; }
-
-  function showModels(catKey, subKey, products){
-    clearCol(modelsCol);
+  function modelsPanelHTML(catKey, subKey, products){
     if (!products.length){
-      modelsCol.innerHTML = `<div class="mega-link" style="color:var(--muted);cursor:default;">Скоро появятся</div>`;
-      return;
+      return `<div class="mega-link" style="color:var(--muted);cursor:default;">Скоро появятся</div>`;
     }
-    products.forEach(product => {
-      const model = product.name;
+    return products.map(product => {
       const href = subKey
-        ? `index.html?cat=${encodeURIComponent(catKey)}&sub=${encodeURIComponent(subKey)}&model=${encodeURIComponent(model)}`
-        : `index.html?cat=${encodeURIComponent(catKey)}&model=${encodeURIComponent(model)}`;
-      const a = document.createElement("a");
-      a.className = "mega-link";
-      a.href = href;
-      a.textContent = model;
-      modelsCol.appendChild(a);
-    });
+        ? `index.html?cat=${encodeURIComponent(catKey)}&sub=${encodeURIComponent(subKey)}&model=${encodeURIComponent(product.name)}`
+        : `index.html?cat=${encodeURIComponent(catKey)}&model=${encodeURIComponent(product.name)}`;
+      return `<a class="mega-link" href="${href}">${product.name}</a>`;
+    }).join("");
   }
 
-  function showBrand(catKey){
-    const brand = catalog[catKey];
-    clearCol(subCol);
-    clearCol(modelsCol);
-
-    brandsCol.querySelectorAll(".mega-brand").forEach(el => {
-      el.classList.toggle("active", el.dataset.cat === catKey);
-    });
-
-    if (brand.subcategories){
-      Object.entries(brand.subcategories).forEach(([subKey, sub]) => {
-        const a = document.createElement("a");
-        a.className = "mega-brand";
-        a.href = `index.html?cat=${encodeURIComponent(catKey)}&sub=${encodeURIComponent(subKey)}`;
-        a.dataset.sub = subKey;
-        a.innerHTML = `${sub.name} <span class="arrow">›</span>`;
-        a.addEventListener("mouseenter", () => {
-          subCol.querySelectorAll(".mega-brand").forEach(el => el.classList.toggle("active", el === a));
-          showModels(catKey, subKey, sub.products);
-        });
-        subCol.appendChild(a);
-      });
-      // Автоматически показываем модели первой подкатегории
-      const [firstSubKey, firstSub] = Object.entries(brand.subcategories)[0];
-      showModels(catKey, firstSubKey, firstSub.products);
-      subCol.querySelector(".mega-brand")?.classList.add("active");
-    } else {
-      showModels(catKey, null, brand.products);
-    }
-  }
+  // Строим ВСЁ меню один раз целиком (все панели сразу в DOM, скрытые кроме активной) -
+  // это важно: если пересобирать содержимое колонок при каждом наведении, ссылка под
+  // курсором может быть уничтожена и создана заново в момент клика, и клик не сработает.
+  // Здесь элементы никогда не удаляются - только переключается видимость через класс "shown".
+  let brandsHTML = "";
+  let subPanelsHTML = "";
+  let modelPanelsHTML = "";
+  let firstCatKey = null;
 
   Object.entries(catalog).forEach(([catKey, brand], i) => {
-    const hasChildren = brand.subcategories || brand.products.length;
-    const a = document.createElement("a");
-    a.className = "mega-brand";
-    a.href = `index.html?cat=${encodeURIComponent(catKey)}`;
-    a.dataset.cat = catKey;
-    a.innerHTML = `${brand.name} <span class="arrow">›</span>`;
-    a.addEventListener("mouseenter", () => showBrand(catKey));
-    brandsCol.appendChild(a);
-    if (i === 0) showBrand(catKey); // показываем первый бренд сразу при открытии меню
+    if (i === 0) firstCatKey = catKey;
+    brandsHTML += `<a class="mega-brand${i === 0 ? ' active' : ''}" href="index.html?cat=${encodeURIComponent(catKey)}" data-cat="${catKey}">${brand.name} <span class="arrow">›</span></a>`;
+
+    if (brand.subcategories){
+      const subEntries = Object.entries(brand.subcategories);
+      let subLinksHTML = "";
+      subEntries.forEach(([subKey, sub], j) => {
+        subLinksHTML += `<a class="mega-brand${j === 0 ? ' active' : ''}" href="index.html?cat=${encodeURIComponent(catKey)}&sub=${encodeURIComponent(subKey)}" data-cat="${catKey}" data-sub="${subKey}">${sub.name} <span class="arrow">›</span></a>`;
+        modelPanelsHTML += `<div class="mega-model-panel${i === 0 && j === 0 ? ' shown' : ''}" data-cat="${catKey}" data-sub="${subKey}">${modelsPanelHTML(catKey, subKey, sub.products)}</div>`;
+      });
+      subPanelsHTML += `<div class="mega-sub-panel${i === 0 ? ' shown' : ''}" data-cat="${catKey}">${subLinksHTML}</div>`;
+    } else {
+      modelPanelsHTML += `<div class="mega-model-panel${i === 0 ? ' shown' : ''}" data-cat="${catKey}">${modelsPanelHTML(catKey, null, brand.products)}</div>`;
+    }
+  });
+
+  brandsCol.innerHTML = brandsHTML;
+  subCol.innerHTML = subPanelsHTML;
+  modelsCol.innerHTML = modelPanelsHTML;
+
+  function showOnly(container, selector, matchEl){
+    container.querySelectorAll(selector).forEach(el => el.classList.toggle("shown", el === matchEl));
+  }
+  function activateOnly(container, selector, matchEl){
+    container.querySelectorAll(selector).forEach(el => el.classList.toggle("active", el === matchEl));
+  }
+
+  brandsCol.querySelectorAll(".mega-brand").forEach(el => {
+    el.addEventListener("mouseenter", () => {
+      const catKey = el.dataset.cat;
+      activateOnly(brandsCol, ".mega-brand", el);
+      showOnly(subCol, ".mega-sub-panel", subCol.querySelector(`.mega-sub-panel[data-cat="${catKey}"]`));
+
+      const subPanel = subCol.querySelector(`.mega-sub-panel[data-cat="${catKey}"]`);
+      if (subPanel){
+        // бренд с подкатегориями - показываем модели первой подкатегории
+        const firstSub = subPanel.querySelector(".mega-brand");
+        if (firstSub){
+          activateOnly(subPanel, ".mega-brand", firstSub);
+          showOnly(modelsCol, ".mega-model-panel", modelsCol.querySelector(`.mega-model-panel[data-cat="${catKey}"][data-sub="${firstSub.dataset.sub}"]`));
+        }
+      } else {
+        // плоский бренд - модели сразу в третьей колонке, подкатегорий нет
+        showOnly(modelsCol, ".mega-model-panel", modelsCol.querySelector(`.mega-model-panel[data-cat="${catKey}"]:not([data-sub])`));
+      }
+    });
+  });
+
+  subCol.querySelectorAll(".mega-brand[data-sub]").forEach(el => {
+    el.addEventListener("mouseenter", () => {
+      const catKey = el.dataset.cat;
+      const subKey = el.dataset.sub;
+      const panel = el.closest(".mega-sub-panel");
+      activateOnly(panel, ".mega-brand", el);
+      showOnly(modelsCol, ".mega-model-panel", modelsCol.querySelector(`.mega-model-panel[data-cat="${catKey}"][data-sub="${subKey}"]`));
+    });
   });
 }
 

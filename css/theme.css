@@ -96,6 +96,11 @@ a{ color: inherit; }
   color: var(--accent-2);
 }
 .mega-brand .arrow{ color: var(--muted); margin-left: 12px; }
+
+/* Панели подкатегорий/моделей: все существуют в DOM одновременно, показывается только "shown" */
+.mega-sub-panel, .mega-model-panel{ display: none; flex-direction: column; }
+.mega-sub-panel.shown, .mega-model-panel.shown{ display: flex; }
+
 @media (max-width: 780px){
   .mega-menu{ display: none !important; } /* на мобилке используется обычное меню-бургер */
 }
@@ -263,7 +268,7 @@ a{ color: inherit; }
 .consent-line a{ color: var(--accent-2); }
 
 /* ---------- Карточки товара в листинге (с фото/ценой) + фильтры ---------- */
-.listing-layout{ display:grid; grid-template-columns: 220px 1fr; gap: 32px; align-items:start; }
+.listing-layout{ display:grid; grid-template-columns: 240px 1fr; gap: 32px; align-items:start; }
 @media (max-width: 780px){ .listing-layout{ grid-template-columns: 1fr; } }
 
 .filters{
@@ -275,9 +280,9 @@ a{ color: inherit; }
 .filters .filter-group:last-child{ margin-bottom:0; }
 .filters label.check{ display:flex; align-items:center; gap:8px; font-size:14px; padding:4px 0; cursor:pointer; }
 .filters input[type=checkbox]{ accent-color: var(--accent); }
-.price-range-inputs{ display:flex; gap:8px; align-items:center; }
+.price-range-inputs{ display:flex; gap:6px; align-items:center; }
 .price-range-inputs input{
-  width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--line);
+  width:0; flex:1 1 0; min-width:70px; padding:8px 6px; border-radius:8px; border:1px solid var(--line);
   background: var(--panel-2); color:var(--text); font-size:13px;
 }
 .listing-toolbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:12px; flex-wrap:wrap; }
@@ -307,3 +312,21 @@ a{ color: inherit; }
 .product-card .card-name{ font-size:15px; font-weight:600; margin-bottom:6px; }
 .product-card .card-price{ font-size:16px; font-weight:700; color:var(--accent-2); }
 .product-card .card-price.muted{ color:var(--muted); font-weight:500; font-size:13px; }
+
+/* ---------- Таблица всех вариантов на странице товара ---------- */
+.variant-table-wrap{ overflow-x:auto; border:1px solid var(--line); border-radius:14px; }
+.variant-table{ width:100%; border-collapse:collapse; font-size:14px; }
+.variant-table th{
+  text-align:left; padding:12px 16px; background:var(--panel); color:var(--muted);
+  font-size:12px; text-transform:uppercase; letter-spacing:.04em; border-bottom:1px solid var(--line);
+}
+.variant-table td{ padding:12px 16px; border-bottom:1px solid var(--line); }
+.variant-table tbody tr:last-child td{ border-bottom:none; }
+.variant-table tbody tr:hover{ background:var(--panel); }
+.variant-table .swatch{ display:inline-block; width:12px; height:12px; border-radius:50%; margin-right:8px; vertical-align:middle; border:1px solid rgba(255,255,255,.2); }
+.variant-price{ font-weight:700; color:var(--accent-2); white-space:nowrap; }
+.buy-row{
+  display:inline-block; padding:6px 14px; border-radius:8px; background:var(--accent);
+  color:#fff; text-decoration:none; font-size:13px; font-weight:600; white-space:nowrap;
+}
+.buy-row:hover{ filter:brightness(1.08); }

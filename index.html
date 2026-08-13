@@ -440,6 +440,32 @@ function getProduct(data, cat, sub, model){
   return products.find(p => p.name === model) || null;
 }
 
+// Раскладывает вложенную структуру цен товара в плоский список строк для таблицы
+function flattenVariants(product){
+  const rows = [];
+  if (typeof product.price === "number"){
+    rows.push({ price: product.price });
+    return rows;
+  }
+  if (!product.prices) return rows;
+  if (product.hasMemory){
+    Object.entries(product.prices).forEach(([memory, colorMap]) => {
+      Object.entries(colorMap).forEach(([color, thirdMap]) => {
+        Object.entries(thirdMap).forEach(([third, price]) => {
+          if (typeof price === "number") rows.push({ memory, color, third, price });
+        });
+      });
+    });
+  } else {
+    Object.entries(product.prices).forEach(([color, thirdMap]) => {
+      Object.entries(thirdMap).forEach(([third, price]) => {
+        if (typeof price === "number") rows.push({ color, third, price });
+      });
+    });
+  }
+  return rows;
+}
+
 function renderProduct(data, cat, sub, model){
   const catData = data[cat];
   const product = getProduct(data, cat, sub, model);
@@ -457,116 +483,66 @@ function renderProduct(data, cat, sub, model){
   setCrumbs(crumbs);
   document.getElementById("pageTitle").textContent = model;
 
-  // Простой товар без вариантов (просто фиксированная цена, например AirPods)
-  if (typeof product.price === "number"){
-    document.getElementById("app").innerHTML = `
-      <div class="layout">
-        <div class="stage"><div class="visual" style="--v-a:#8a8f98;--v-b:#242731;"></div></div>
-        <div class="panel">
-          <div class="price-block" style="border-top:none; padding-top:0;">
-            <div class="price">${fmtPrice(product.price)}</div>
-            <button class="buy">Купить за ${fmtPrice(product.price)}</button>
-          </div>
-        </div>
-      </div>`;
-    return;
-  }
+  const rows = flattenVariants(product);
 
-  const hasMemory = product.hasMemory;
-  const state = {};
-
-  // Товар-заготовка без данных о ценах (модель есть, прайс ещё не завели)
-  const noData = !product.prices || !hasAnyPriceData(product.prices);
-  if (noData){
+  if (!rows.length){
     document.getElementById("app").innerHTML = "<div class='state'>Цены на эту модель скоро появятся.</div>";
     return;
   }
 
+  // Простой товар без вариантов - одна строка, одна цена, без таблицы
+  if (rows.length === 1 && !rows[0].memory && !rows[0].color){
+    document.getElementById("app").innerHTML = `
+      <div class="price-block" style="border-top:none; padding-top:0;">
+        <div class="price">${fmtPrice(rows[0].price)}</div>
+        <a class="buy" style="display:inline-block; text-decoration:none;" href="order.html?item=${encodeURIComponent(model)}">Купить за ${fmtPrice(rows[0].price)}</a>
+      </div>`;
+    return;
+  }
+
+  const showMemoryCol = rows.some(r => r.memory);
+  const showColorCol = rows.some(r => r.color);
+  const distinctThirds = new Set(rows.map(r => r.third).filter(Boolean));
+  const showThirdCol = distinctThirds.size > 1;
+  const thirdLabel = product.regionLabel || "Регион";
+
+  // Сортируем строки для стабильного порядка: по памяти (в порядке появления), затем по цвету, затем по третьему измерению
+  const memOrder = [...new Set(rows.map(r => r.memory).filter(Boolean))];
+  const colorOrder = [...new Set(rows.map(r => r.color).filter(Boolean))];
+  rows.sort((a, b) => {
+    if (showMemoryCol && a.memory !== b.memory) return memOrder.indexOf(a.memory) - memOrder.indexOf(b.memory);
+    if (showColorCol && a.color !== b.color) return colorOrder.indexOf(a.color) - colorOrder.indexOf(b.color);
+    return 0;
+  });
+
   document.getElementById("app").innerHTML = `
-    <div class="layout">
-      <div class="stage"><div class="visual" id="visual"></div></div>
-      <div class="panel" id="panel"></div>
+    <div class="variant-table-wrap">
+      <table class="variant-table">
+        <thead>
+          <tr>
+            ${showMemoryCol ? "<th>Память</th>" : ""}
+            ${showColorCol ? "<th>Цвет</th>" : ""}
+            ${showThirdCol ? `<th>${thirdLabel}</th>` : ""}
+            <th>Цена</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => {
+            const itemDesc = [model, r.memory, r.color, showThirdCol ? (REGION_LABEL[r.third] || r.third) : null]
+              .filter(Boolean).join(", ");
+            return `
+            <tr>
+              ${showMemoryCol ? `<td>${r.memory || "—"}</td>` : ""}
+              ${showColorCol ? `<td>${r.color ? `<span class="swatch" style="background:${(COLOR_HEX[r.color]||{a:'#888'}).a}"></span>${r.color}` : "—"}</td>` : ""}
+              ${showThirdCol ? `<td>${REGION_LABEL[r.third] || r.third}</td>` : ""}
+              <td class="variant-price">${fmtPrice(r.price)}</td>
+              <td><a class="buy-row" href="order.html?item=${encodeURIComponent(itemDesc)}">Купить</a></td>
+            </tr>`;
+          }).join("")}
+        </tbody>
+      </table>
     </div>`;
-
-  function currentPriceTree(){
-    return hasMemory ? product.prices[state.memory][state.color] : product.prices[state.color];
-  }
-
-  function refreshDependent(){
-    if (hasMemory){
-      const memories = Object.keys(product.prices);
-      if (!memories.includes(state.memory)) state.memory = memories[0];
-      const colors = Object.keys(product.prices[state.memory]);
-      if (!colors.includes(state.color)) state.color = colors[0];
-      const regions = Object.keys(product.prices[state.memory][state.color]);
-      if (!regions.includes(state.region)) state.region = regions[0];
-    } else {
-      const colors = Object.keys(product.prices);
-      if (!colors.includes(state.color)) state.color = colors[0];
-      const regions = Object.keys(product.prices[state.color]);
-      if (!regions.includes(state.region)) state.region = regions[0];
-    }
-  }
-  refreshDependent();
-
-  function applyVisual(){
-    const hex = COLOR_HEX[state.color] || { a: "#4f7cff", b: "#152036" };
-    const v = document.getElementById("visual");
-    v.style.setProperty("--v-a", hex.a);
-    v.style.setProperty("--v-b", hex.b);
-  }
-
-  function renderPanel(){
-    const memories = hasMemory ? Object.keys(product.prices) : null;
-    const colors = hasMemory ? Object.keys(product.prices[state.memory]) : Object.keys(product.prices);
-    const regions = Object.keys(currentPriceTree());
-    const price = currentPriceTree()[state.region];
-
-    const panel = document.getElementById("panel");
-    panel.innerHTML = `
-      ${hasMemory ? `
-      <div>
-        <div class="group-label">Память</div>
-        <div class="options" id="memOpts">
-          ${memories.map(m => `<button class="opt ${m===state.memory?'active':''}" data-mem="${m}">${m}</button>`).join("")}
-        </div>
-      </div>` : ""}
-      <div>
-        <div class="group-label">Цвет</div>
-        <div class="options" id="colorOpts">
-          ${colors.map(c => `<button class="opt color-opt ${c===state.color?'active':''}" data-color="${c}">
-              <span class="swatch" style="background:${(COLOR_HEX[c]||{a:'#888'}).a}"></span>${c}
-            </button>`).join("")}
-        </div>
-      </div>
-      <div>
-        <div class="group-label">${product.regionLabel || "Регион"}</div>
-        <div class="options" id="regionOpts">
-          ${regions.map(r => `<button class="opt ${r===state.region?'active':''}" data-region="${r}">${REGION_LABEL[r]||r}</button>`).join("")}
-        </div>
-      </div>
-      <div class="price-block">
-        <div class="price">${fmtPrice(price)}</div>
-        <div class="price-note">${[hasMemory?state.memory:null, state.color, REGION_LABEL[state.region]||state.region].filter(Boolean).join(" · ")}</div>
-        <button class="buy">Купить за ${fmtPrice(price)}</button>
-      </div>
-    `;
-
-    if (hasMemory){
-      panel.querySelectorAll("[data-mem]").forEach(btn => btn.onclick = () => {
-        state.memory = btn.dataset.mem; refreshDependent(); applyVisual(); renderPanel();
-      });
-    }
-    panel.querySelectorAll("[data-color]").forEach(btn => btn.onclick = () => {
-      state.color = btn.dataset.color; refreshDependent(); applyVisual(); renderPanel();
-    });
-    panel.querySelectorAll("[data-region]").forEach(btn => btn.onclick = () => {
-      state.region = btn.dataset.region; renderPanel();
-    });
-  }
-
-  applyVisual();
-  renderPanel();
 }
 
 fetch("data/catalog.json", { cache: "no-store" })
