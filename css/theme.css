@@ -55,16 +55,20 @@ a{ color: inherit; }
 .mega-menu{
   display: none;
   position: absolute;
-  top: calc(100% + 8px);
+  top: 100%;
   left: 0;
+  padding-top: 8px; /* визуальный отступ - внутри зоны наведения, а не снаружи, чтобы не было "мёртвой зоны" при движении курсора вниз */
+  z-index: 100;
+}
+.mega-menu-inner{
+  display: flex;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 14px;
   box-shadow: 0 24px 48px -12px rgba(0,0,0,.6);
   padding: 10px;
-  z-index: 100;
 }
-.nav-item-catalog:hover .mega-menu{ display: flex; }
+.nav-item-catalog:hover .mega-menu{ display: block; }
 .mega-col{
   min-width: 180px;
   max-height: 420px;
