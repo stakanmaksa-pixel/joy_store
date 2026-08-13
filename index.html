@@ -111,6 +111,7 @@ function fmtPrice(n){ return new Intl.NumberFormat("ru-RU").format(n) + " ₽"; 
 
 const params = new URLSearchParams(location.search);
 const catKey = params.get("cat");
+const subKey = params.get("sub");
 const modelKey = params.get("model");
 document.body.dataset.page = catKey ? "catalog" : "home";
 
@@ -120,15 +121,41 @@ function setCrumbs(parts){
     .join("");
 }
 
+function emptyState(){
+  return "<div class='state'>Товаров пока нет — скоро добавим.</div>";
+}
+
 function renderHome(data){
   setCrumbs([{label: "Каталог"}]);
   document.getElementById("pageTitle").textContent = "Каталог";
   const cats = Object.keys(data);
   document.getElementById("app").innerHTML = `<div class="grid">
-    ${cats.map(c => `
+    ${cats.map(c => {
+      const brand = data[c];
+      const count = brand.subcategories
+        ? Object.keys(brand.subcategories).length
+        : Object.keys(brand.products).length;
+      const label = brand.subcategories ? "категорий" : "моделей";
+      return `
       <a class="tile" href="?cat=${encodeURIComponent(c)}">
-        <div class="tile-name">${data[c].name}</div>
-        <div class="tile-sub">${Object.keys(data[c].products).length} моделей</div>
+        <div class="tile-name">${brand.name}</div>
+        <div class="tile-sub">${count} ${label}</div>
+      </a>`;
+    }).join("")}
+  </div>`;
+}
+
+// Бренд без подкатегорий (Samsung, Dyson и т.п.) - сразу список моделей
+function renderProductGrid(products, crumbLabel, hrefBuilder){
+  const models = Object.keys(products);
+  if (!models.length){
+    document.getElementById("app").innerHTML = emptyState();
+    return;
+  }
+  document.getElementById("app").innerHTML = `<div class="grid">
+    ${models.map(m => `
+      <a class="tile" href="${hrefBuilder(m)}">
+        <div class="tile-name">${m}</div>
       </a>`).join("")}
   </div>`;
 }
@@ -136,36 +163,109 @@ function renderHome(data){
 function renderCategory(data, cat){
   const catData = data[cat];
   if (!catData){
-    document.getElementById("app").innerHTML = "<div class='state'>Категория не найдена.</div>";
+    document.getElementById("app").innerHTML = "<div class='state'>Раздел не найден.</div>";
     return;
   }
-  setCrumbs([{label: "Каталог", href: "?"}, {label: catData.name}]);
   document.getElementById("pageTitle").textContent = catData.name;
-  const models = Object.keys(catData.products);
-  document.getElementById("app").innerHTML = `<div class="grid">
-    ${models.map(m => `
-      <a class="tile" href="?cat=${encodeURIComponent(cat)}&model=${encodeURIComponent(m)}">
-        <div class="tile-name">${m}</div>
-      </a>`).join("")}
-  </div>`;
+
+  if (catData.subcategories){
+    // Бренд с подкатегориями (Apple) - показываем плитки подкатегорий
+    setCrumbs([{label: "Каталог", href: "?"}, {label: catData.name}]);
+    const subs = Object.keys(catData.subcategories);
+    document.getElementById("app").innerHTML = `<div class="grid">
+      ${subs.map(s => {
+        const sub = catData.subcategories[s];
+        const count = Object.keys(sub.products).length;
+        return `
+        <a class="tile" href="?cat=${encodeURIComponent(cat)}&sub=${encodeURIComponent(s)}">
+          <div class="tile-name">${sub.name}</div>
+          <div class="tile-sub">${count} моделей</div>
+        </a>`;
+      }).join("")}
+    </div>`;
+    return;
+  }
+
+  // Бренд без подкатегорий - сразу список моделей
+  setCrumbs([{label: "Каталог", href: "?"}, {label: catData.name}]);
+  renderProductGrid(
+    catData.products,
+    catData.name,
+    m => `?cat=${encodeURIComponent(cat)}&model=${encodeURIComponent(m)}`
+  );
 }
 
-function renderProduct(data, cat, model){
+function renderSubcategory(data, cat, sub){
   const catData = data[cat];
-  const product = catData && catData.products[model];
-  if (!product){
-    document.getElementById("app").innerHTML = "<div class='state'>Товар не найден.</div>";
+  const subData = catData && catData.subcategories && catData.subcategories[sub];
+  if (!subData){
+    document.getElementById("app").innerHTML = "<div class='state'>Раздел не найден.</div>";
     return;
   }
   setCrumbs([
     {label: "Каталог", href: "?"},
     {label: catData.name, href: `?cat=${encodeURIComponent(cat)}`},
-    {label: model},
+    {label: subData.name},
   ]);
+  document.getElementById("pageTitle").textContent = subData.name;
+  renderProductGrid(
+    subData.products,
+    subData.name,
+    m => `?cat=${encodeURIComponent(cat)}&sub=${encodeURIComponent(sub)}&model=${encodeURIComponent(m)}`
+  );
+}
+
+function getProduct(data, cat, sub, model){
+  const catData = data[cat];
+  if (!catData) return null;
+  if (sub){
+    const subData = catData.subcategories && catData.subcategories[sub];
+    return subData ? subData.products[model] : null;
+  }
+  return catData.products[model];
+}
+
+function renderProduct(data, cat, sub, model){
+  const catData = data[cat];
+  const product = getProduct(data, cat, sub, model);
+  if (!product){
+    document.getElementById("app").innerHTML = "<div class='state'>Товар не найден.</div>";
+    return;
+  }
+
+  const crumbs = [{label: "Каталог", href: "?"}, {label: catData.name, href: `?cat=${encodeURIComponent(cat)}`}];
+  if (sub){
+    const subData = catData.subcategories[sub];
+    crumbs.push({label: subData.name, href: `?cat=${encodeURIComponent(cat)}&sub=${encodeURIComponent(sub)}`});
+  }
+  crumbs.push({label: model});
+  setCrumbs(crumbs);
   document.getElementById("pageTitle").textContent = model;
+
+  // Простой товар без вариантов (просто фиксированная цена, например AirPods)
+  if (typeof product.price === "number"){
+    document.getElementById("app").innerHTML = `
+      <div class="layout">
+        <div class="stage"><div class="visual" style="--v-a:#8a8f98;--v-b:#242731;"></div></div>
+        <div class="panel">
+          <div class="price-block" style="border-top:none; padding-top:0;">
+            <div class="price">${fmtPrice(product.price)}</div>
+            <button class="buy">Купить за ${fmtPrice(product.price)}</button>
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
 
   const hasMemory = product.hasMemory;
   const state = {};
+
+  // Товар-заготовка без данных о ценах (модель есть, прайс ещё не завели)
+  const noData = !product.prices || Object.keys(product.prices).length === 0;
+  if (noData){
+    document.getElementById("app").innerHTML = "<div class='state'>Цены на эту модель скоро появятся.</div>";
+    return;
+  }
 
   document.getElementById("app").innerHTML = `
     <div class="layout">
@@ -257,7 +357,8 @@ function renderProduct(data, cat, model){
 fetch("data/catalog.json", { cache: "no-store" })
   .then(r => r.json())
   .then(data => {
-    if (modelKey && catKey) renderProduct(data, catKey, modelKey);
+    if (catKey && modelKey) renderProduct(data, catKey, subKey, modelKey);
+    else if (catKey && subKey) renderSubcategory(data, catKey, subKey);
     else if (catKey) renderCategory(data, catKey);
     else renderHome(data);
   })
