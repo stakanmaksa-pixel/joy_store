@@ -50,6 +50,52 @@ a{ color: inherit; }
 .main-nav a:hover{ color: var(--text); background: var(--panel); }
 .main-nav a.active{ color: var(--text); background: var(--panel-2); }
 
+/* ---------- Выпадающее меню каталога ---------- */
+.nav-item-catalog{ position: relative; }
+.mega-menu{
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 24px 48px -12px rgba(0,0,0,.6);
+  padding: 10px;
+  z-index: 100;
+}
+.nav-item-catalog:hover .mega-menu{ display: flex; }
+.mega-col{
+  min-width: 180px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.mega-col:not(:first-child):not(:empty){
+  border-left: 1px solid var(--line);
+  margin-left: 10px;
+  padding-left: 14px;
+}
+.mega-brand, .mega-link{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 10px;
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.mega-brand:hover, .mega-brand.active, .mega-link:hover{
+  background: var(--panel-2);
+  color: var(--accent-2);
+}
+.mega-brand .arrow{ color: var(--muted); margin-left: 12px; }
+@media (max-width: 780px){
+  .mega-menu{ display: none !important; } /* на мобилке используется обычное меню-бургер */
+}
+
 .header-actions{ display:flex; align-items:center; gap: 8px; }
 .icon-btn{
   width: 40px; height: 40px; border-radius: 10px;
@@ -199,3 +245,15 @@ a{ color: inherit; }
 .review-form .form-status{ margin-top: 12px; font-size: 13px; }
 .review-form .form-status.ok{ color: #7ee787; }
 .review-form .form-status.err{ color: #ff7b72; }
+
+.radio-group{ display:flex; flex-direction:column; gap:8px; margin-top:4px; }
+.radio-option{
+  display:flex; align-items:center; gap:10px;
+  padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--panel-2); cursor:pointer; font-size: 14px;
+}
+.radio-option:has(input:checked){ border-color: var(--accent); }
+.radio-option input{ width:auto; accent-color: var(--accent); }
+.consent-line{ display:flex; align-items:flex-start; gap:10px; margin-top:20px; font-size:12px; color:var(--muted); }
+.consent-line input{ width:auto; margin-top:3px; accent-color: var(--accent); }
+.consent-line a{ color: var(--accent-2); }

@@ -4,8 +4,9 @@
     "subcategories": {
       "iphone": {
         "name": "iPhone",
-        "products": {
-          "17 Pro Max": {
+        "products": [
+          {
+            "name": "17 Pro Max",
             "hasMemory": true,
             "prices": {
               "256GB": {
@@ -67,7 +68,8 @@
             },
             "regionLabel": "Тип SIM-карты"
           },
-          "17 Pro": {
+          {
+            "name": "17 Pro",
             "hasMemory": true,
             "regionLabel": "Тип SIM-карты",
             "prices": {
@@ -88,7 +90,8 @@
               }
             }
           },
-          "17": {
+          {
+            "name": "17",
             "hasMemory": true,
             "regionLabel": "Тип SIM-карты",
             "prices": {
@@ -108,62 +111,92 @@
               }
             }
           },
-          "17e": {},
-          "Air": {},
-          "16 Pro Max": {},
-          "16 Pro": {},
-          "16 Plus": {},
-          "16": {},
-          "16e": {},
-          "15 Pro Max": {},
-          "15 Pro": {},
-          "15/15 Plus": {},
-          "14/14 Plus": {},
-          "13": {}
-        }
+          {
+            "name": "17e"
+          },
+          {
+            "name": "Air"
+          },
+          {
+            "name": "16 Pro Max"
+          },
+          {
+            "name": "16 Pro"
+          },
+          {
+            "name": "16 Plus"
+          },
+          {
+            "name": "16"
+          },
+          {
+            "name": "16e"
+          },
+          {
+            "name": "15 Pro Max"
+          },
+          {
+            "name": "15 Pro"
+          },
+          {
+            "name": "15/15 Plus"
+          },
+          {
+            "name": "14/14 Plus"
+          },
+          {
+            "name": "13"
+          }
+        ]
       },
       "airpods": {
         "name": "AirPods",
-        "products": {
-          "AirPods 4": {
+        "products": [
+          {
+            "name": "AirPods 4",
             "price": 11000
           },
-          "AirPods 4 ANC": {
+          {
+            "name": "AirPods 4 ANC",
             "price": 15000
           },
-          "AirPods Pro 2 Type-C": {
+          {
+            "name": "AirPods Pro 2 Type-C",
             "price": 15000
           },
-          "AirPods Pro 3": {
+          {
+            "name": "AirPods Pro 3",
             "price": 17900
           },
-          "AirPods Max 2 2026": {
+          {
+            "name": "AirPods Max 2 2026",
             "price": 42000
           }
-        }
+        ]
       },
       "watch": {
         "name": "Watch",
-        "products": {}
+        "products": []
       },
       "macbook": {
         "name": "MacBook",
-        "products": {}
+        "products": []
       },
       "mac-mini": {
         "name": "Mac Mini",
-        "products": {}
+        "products": []
       },
       "apple-tv": {
         "name": "Apple TV",
-        "products": {}
+        "products": []
       }
     }
   },
   "samsung": {
     "name": "Samsung",
-    "products": {
-      "Galaxy S25 Ultra": {
+    "products": [
+      {
+        "name": "Galaxy S25 Ultra",
         "hasMemory": true,
         "prices": {
           "256GB": {
@@ -188,20 +221,21 @@
           }
         }
       }
-    }
+    ]
   },
   "xiaomi": {
     "name": "Xiaomi",
-    "products": {}
+    "products": []
   },
   "playstation": {
     "name": "Игровые приставки",
-    "products": {}
+    "products": []
   },
   "dyson": {
     "name": "Dyson",
-    "products": {
-      "Airwrap": {
+    "products": [
+      {
+        "name": "Airwrap",
         "hasMemory": false,
         "prices": {
           "Nickel/Copper": {
@@ -214,18 +248,18 @@
           }
         }
       }
-    }
+    ]
   },
   "gopro": {
     "name": "GoPro",
-    "products": {}
+    "products": []
   },
   "dji": {
     "name": "DJI",
-    "products": {}
+    "products": []
   },
   "yandex": {
     "name": "Яндекс",
-    "products": {}
+    "products": []
   }
 }

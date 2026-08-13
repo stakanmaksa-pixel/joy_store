@@ -141,7 +141,7 @@ function renderHome(data){
       const brand = data[c];
       const count = brand.subcategories
         ? Object.keys(brand.subcategories).length
-        : Object.keys(brand.products).length;
+        : brand.products.length;
       const label = brand.subcategories ? "категорий" : "моделей";
       return `
       <a class="tile" href="?cat=${encodeURIComponent(c)}">
@@ -154,15 +154,14 @@ function renderHome(data){
 
 // Бренд без подкатегорий (Samsung, Dyson и т.п.) - сразу список моделей
 function renderProductGrid(products, crumbLabel, hrefBuilder){
-  const models = Object.keys(products);
-  if (!models.length){
+  if (!products.length){
     document.getElementById("app").innerHTML = emptyState();
     return;
   }
   document.getElementById("app").innerHTML = `<div class="grid">
-    ${models.map(m => `
-      <a class="tile" href="${hrefBuilder(m)}">
-        <div class="tile-name">${m}</div>
+    ${products.map(p => `
+      <a class="tile" href="${hrefBuilder(p.name)}">
+        <div class="tile-name">${p.name}</div>
       </a>`).join("")}
   </div>`;
 }
@@ -182,7 +181,7 @@ function renderCategory(data, cat){
     document.getElementById("app").innerHTML = `<div class="grid">
       ${subs.map(s => {
         const sub = catData.subcategories[s];
-        const count = Object.keys(sub.products).length;
+        const count = sub.products.length;
         return `
         <a class="tile" href="?cat=${encodeURIComponent(cat)}&sub=${encodeURIComponent(s)}">
           <div class="tile-name">${sub.name}</div>
@@ -225,11 +224,11 @@ function renderSubcategory(data, cat, sub){
 function getProduct(data, cat, sub, model){
   const catData = data[cat];
   if (!catData) return null;
-  if (sub){
-    const subData = catData.subcategories && catData.subcategories[sub];
-    return subData ? subData.products[model] : null;
-  }
-  return catData.products[model];
+  const products = sub
+    ? (catData.subcategories && catData.subcategories[sub] ? catData.subcategories[sub].products : null)
+    : catData.products;
+  if (!products) return null;
+  return products.find(p => p.name === model) || null;
 }
 
 function renderProduct(data, cat, sub, model){

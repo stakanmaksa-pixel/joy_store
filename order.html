@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Оформить заказ — iJoy</title>
+<link rel="stylesheet" href="css/theme.css">
+</head>
+<body data-page="order">
+  <div id="site-header"></div>
+
+  <div class="content-wrap">
+    <h1>Оформить заказ</h1>
+    <p style="color:var(--muted); margin-top:-16px;">Оставь заявку — свяжемся с тобой в ближайшее время, чтобы уточнить детали.</p>
+
+    <div class="review-form">
+      <form id="orderForm">
+        <label>Ваше имя *</label>
+        <input type="text" name="name" required>
+
+        <label>Телефон *</label>
+        <input type="tel" name="phone" required placeholder="+7 900 000-00-00">
+
+        <label>Что хотите заказать</label>
+        <input type="text" name="product" placeholder="Например: iPhone 17 Pro Max, 256GB, Blue">
+
+        <label>Способ доставки *</label>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="delivery" value="Экспресс-доставка курьером" required> Экспресс-доставка курьером (Москва и область)</label>
+          <label class="radio-option"><input type="radio" name="delivery" value="Самовывоз"> Самовывоз — Багратионовский пр., 7к2, БЦ Рубин</label>
+          <label class="radio-option"><input type="radio" name="delivery" value="Яндекс Доставка"> Яндекс Доставка</label>
+          <label class="radio-option"><input type="radio" name="delivery" value="СДЭК"> СДЭК (по всей России)</label>
+        </div>
+
+        <label>Способ оплаты *</label>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="payment" value="Наличными при получении" required> Наличными при получении</label>
+          <label class="radio-option"><input type="radio" name="payment" value="Картой при получении"> Картой при получении</label>
+        </div>
+
+        <label>Комментарий</label>
+        <textarea name="comment" placeholder="Необязательно — что-то ещё, что стоит знать о заказе"></textarea>
+
+        <div class="consent-line">
+          <input type="checkbox" id="consentCheck" required>
+          <label for="consentCheck" style="margin:0;">Нажимая на кнопку, вы даёте согласие на обработку своих персональных данных и соглашаетесь с <a href="policy.html">политикой конфиденциальности</a></label>
+        </div>
+
+        <button type="submit" id="orderSubmitBtn">Оформить заказ</button>
+        <div class="form-status" id="orderStatus"></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="site-footer"></div>
+  <script src="js/layout.js"></script>
+  <script>
+    // Замени на реальный адрес после деплоя form-notify на Timeweb
+    const NOTIFY_ENDPOINT = "https://ЗАМЕНИ-НА-СВОЙ-АДРЕС/submit";
+
+    const form = document.getElementById("orderForm");
+    const statusEl = document.getElementById("orderStatus");
+    const submitBtn = document.getElementById("orderSubmitBtn");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      statusEl.textContent = "";
+      statusEl.className = "form-status";
+
+      const payload = {
+        form_type: "Заказ",
+        "Имя": form.name.value,
+        "Телефон": form.phone.value,
+        "Товар": form.product.value,
+        "Доставка": form.delivery.value,
+        "Оплата": form.payment.value,
+        "Комментарий": form.comment.value,
+      };
+
+      try {
+        const res = await fetch(NOTIFY_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          statusEl.textContent = "Спасибо! Заявка принята, свяжемся с вами в ближайшее время.";
+          statusEl.classList.add("ok");
+          form.reset();
+        } else {
+          throw new Error("delivery failed");
+        }
+      } catch (err) {
+        statusEl.textContent = "Не получилось отправить, попробуйте ещё раз или напишите нам в Telegram.";
+        statusEl.classList.add("err");
+        console.error(err);
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
