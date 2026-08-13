@@ -105,9 +105,16 @@ const COLOR_HEX = {
 const REGION_LABEL = {
   JP: "Япония 🇯🇵", HK: "Гонконг 🇭🇰", US: "США 🇺🇸", AE: "ОАЭ 🇦🇪",
   CN: "Китай 🇨🇳", RU: "Россия 🇷🇺", EU: "Евросоюз 🇪🇺", KR: "Корея 🇰🇷", UK: "Великобритания 🇬🇧",
+  ESIM: "Только eSIM", SIM_ESIM: "SIM + eSIM",
 };
 
 function fmtPrice(n){ return new Intl.NumberFormat("ru-RU").format(n) + " ₽"; }
+
+function hasAnyPriceData(node){
+  if (typeof node === "number") return true;
+  if (typeof node !== "object" || node === null) return false;
+  return Object.values(node).some(hasAnyPriceData);
+}
 
 const params = new URLSearchParams(location.search);
 const catKey = params.get("cat");
@@ -261,7 +268,7 @@ function renderProduct(data, cat, sub, model){
   const state = {};
 
   // Товар-заготовка без данных о ценах (модель есть, прайс ещё не завели)
-  const noData = !product.prices || Object.keys(product.prices).length === 0;
+  const noData = !product.prices || !hasAnyPriceData(product.prices);
   if (noData){
     document.getElementById("app").innerHTML = "<div class='state'>Цены на эту модель скоро появятся.</div>";
     return;
@@ -325,7 +332,7 @@ function renderProduct(data, cat, sub, model){
         </div>
       </div>
       <div>
-        <div class="group-label">Регион</div>
+        <div class="group-label">${product.regionLabel || "Регион"}</div>
         <div class="options" id="regionOpts">
           ${regions.map(r => `<button class="opt ${r===state.region?'active':''}" data-region="${r}">${REGION_LABEL[r]||r}</button>`).join("")}
         </div>

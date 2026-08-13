@@ -10,64 +10,104 @@
             "prices": {
               "256GB": {
                 "Blue": {
-                  "JP": 97000,
-                  "HK": 105200
+                  "ESIM": 97000,
+                  "SIM_ESIM": 105200
                 },
                 "Orange": {
-                  "JP": 97100,
-                  "HK": 105400
+                  "ESIM": 97100,
+                  "SIM_ESIM": 105400
                 },
                 "Silver": {
-                  "JP": 98100,
-                  "HK": 107500
+                  "ESIM": 98100,
+                  "SIM_ESIM": 107500
                 }
               },
               "512GB": {
                 "Blue": {
-                  "JP": 115000,
-                  "HK": 124500
+                  "ESIM": 115000,
+                  "SIM_ESIM": 124500
                 },
                 "Orange": {
-                  "JP": 113200,
-                  "HK": 121800
+                  "ESIM": 113200,
+                  "SIM_ESIM": 121800
                 },
                 "Silver": {
-                  "JP": 113100,
-                  "HK": 124800
+                  "ESIM": 113100,
+                  "SIM_ESIM": 124800
                 }
               },
               "1TB": {
                 "Blue": {
-                  "JP": 128400,
-                  "HK": 138600
+                  "ESIM": 128400,
+                  "SIM_ESIM": 138600
                 },
                 "Orange": {
-                  "JP": 128900,
-                  "HK": 140600
+                  "ESIM": 128900,
+                  "SIM_ESIM": 140600
                 },
                 "Silver": {
-                  "JP": 129700,
-                  "HK": 139100
+                  "ESIM": 129700,
+                  "SIM_ESIM": 139100
                 }
               },
               "2TB": {
                 "Blue": {
-                  "JP": 143800,
-                  "HK": 165200
+                  "ESIM": 143800,
+                  "SIM_ESIM": 165200
                 },
                 "Orange": {
-                  "JP": 142700,
-                  "HK": 163600
+                  "ESIM": 142700,
+                  "SIM_ESIM": 163600
                 },
                 "Silver": {
-                  "JP": 156000,
-                  "HK": 168000
+                  "ESIM": 156000,
+                  "SIM_ESIM": 168000
                 }
+              }
+            },
+            "regionLabel": "Тип SIM-карты"
+          },
+          "17 Pro": {
+            "hasMemory": true,
+            "regionLabel": "Тип SIM-карты",
+            "prices": {
+              "256GB": {
+                "Blue": {},
+                "Orange": {},
+                "Silver": {}
+              },
+              "512GB": {
+                "Blue": {},
+                "Orange": {},
+                "Silver": {}
+              },
+              "1TB": {
+                "Blue": {},
+                "Orange": {},
+                "Silver": {}
               }
             }
           },
-          "17 Pro": {},
-          "17": {},
+          "17": {
+            "hasMemory": true,
+            "regionLabel": "Тип SIM-карты",
+            "prices": {
+              "256GB": {
+                "Black": {},
+                "White": {},
+                "Lavender": {},
+                "Sage": {},
+                "Mist Blue": {}
+              },
+              "512GB": {
+                "Black": {},
+                "White": {},
+                "Lavender": {},
+                "Sage": {},
+                "Mist Blue": {}
+              }
+            }
+          },
           "17e": {},
           "Air": {},
           "16 Pro Max": {},
