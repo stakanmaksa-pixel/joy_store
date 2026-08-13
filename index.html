@@ -100,6 +100,9 @@ const COLOR_HEX = {
   Grey:   { a: "#8a8f98", b: "#242731" },
   "Nickel/Copper": { a: "#c98a5a", b: "#2b1c12" },
   "Vinca Blue":     { a: "#3f6fae", b: "#101b2c" },
+  Lavender: { a: "#b6a6e8", b: "#2b2440" },
+  Sage:     { a: "#9fae8f", b: "#232b1e" },
+  "Mist Blue": { a: "#a9c3d8", b: "#1c2a34" },
 };
 
 const REGION_LABEL = {
@@ -114,6 +117,85 @@ function hasAnyPriceData(node){
   if (typeof node === "number") return true;
   if (typeof node !== "object" || node === null) return false;
   return Object.values(node).some(hasAnyPriceData);
+}
+
+// Минимальная цена товара (для отображения "от X ₽" на карточке)
+function getStartPrice(product){
+  if (typeof product.price === "number") return product.price;
+  if (!product.prices) return null;
+  let min = null;
+  (function walk(node){
+    if (typeof node === "number"){ if (min === null || node < min) min = node; return; }
+    if (typeof node === "object" && node !== null) Object.values(node).forEach(walk);
+  })(product.prices);
+  return min;
+}
+
+// Собирает доступные варианты памяти/цвета и диапазон цен по списку товаров - для фильтров
+function collectFacets(products){
+  const memories = new Set();
+  const colors = new Set();
+  let minPrice = null, maxPrice = null;
+
+  function trackPrice(v){
+    if (typeof v !== "number") return;
+    if (minPrice === null || v < minPrice) minPrice = v;
+    if (maxPrice === null || v > maxPrice) maxPrice = v;
+  }
+
+  products.forEach(p => {
+    if (typeof p.price === "number"){ trackPrice(p.price); return; }
+    if (!p.prices) return;
+    if (p.hasMemory){
+      Object.entries(p.prices).forEach(([mem, colorMap]) => {
+        memories.add(mem);
+        Object.entries(colorMap).forEach(([color, regionMap]) => {
+          colors.add(color);
+          Object.values(regionMap).forEach(trackPrice);
+        });
+      });
+    } else {
+      Object.entries(p.prices).forEach(([color, regionMap]) => {
+        colors.add(color);
+        Object.values(regionMap).forEach(trackPrice);
+      });
+    }
+  });
+
+  return {
+    memories: [...memories],
+    colors: [...colors],
+    minPrice: minPrice ?? 0,
+    maxPrice: maxPrice ?? 0,
+  };
+}
+
+// Проверяет, есть ли у товара вариант с заданной памятью и/или цветом (для фильтрации)
+function productMatchesFacets(product, selectedMemories, selectedColors){
+  if (typeof product.price === "number"){
+    // простой товар без памяти/цвета - проходит фильтр памяти/цвета всегда (нечего фильтровать)
+    return true;
+  }
+  if (!product.prices){
+    // товар-заготовка без данных вообще - не прячем его из-за фильтров, нечего фильтровать
+    return true;
+  }
+  let matched = false;
+  if (product.hasMemory){
+    Object.entries(product.prices).forEach(([mem, colorMap]) => {
+      if (selectedMemories.size && !selectedMemories.has(mem)) return;
+      Object.keys(colorMap).forEach(color => {
+        if (selectedColors.size && !selectedColors.has(color)) return;
+        matched = true;
+      });
+    });
+  } else {
+    Object.keys(product.prices).forEach(color => {
+      if (selectedColors.size && !selectedColors.has(color)) return;
+      matched = true;
+    });
+  }
+  return matched;
 }
 
 const params = new URLSearchParams(location.search);
@@ -152,18 +234,147 @@ function renderHome(data){
   </div>`;
 }
 
-// Бренд без подкатегорий (Samsung, Dyson и т.п.) - сразу список моделей
-function renderProductGrid(products, crumbLabel, hrefBuilder){
+// Карточка товара для листинга (фото/заглушка + название + цена)
+function productCardHTML(product, href){
+  const startPrice = getStartPrice(product);
+  const priceHTML = startPrice === null
+    ? `<div class="card-price muted">Цена уточняется</div>`
+    : `<div class="card-price">от ${fmtPrice(startPrice)}</div>`;
+
+  let photoHTML;
+  if (product.image){
+    photoHTML = `<img src="${product.image}" alt="${product.name}" loading="lazy">`;
+  } else {
+    // Берём первый цвет товара для заглушки-градиента, если есть
+    let firstColor = null;
+    if (product.prices){
+      if (product.hasMemory){
+        const firstMem = Object.values(product.prices)[0];
+        firstColor = firstMem ? Object.keys(firstMem)[0] : null;
+      } else {
+        firstColor = Object.keys(product.prices)[0];
+      }
+    }
+    const hex = COLOR_HEX[firstColor] || { a: "#4f7cff", b: "#152036" };
+    photoHTML = `<div class="card-visual" style="--v-a:${hex.a};--v-b:${hex.b};"></div>`;
+  }
+
+  return `
+    <a class="product-card" href="${href}">
+      <div class="card-photo">${photoHTML}</div>
+      <div class="card-body">
+        <div class="card-name">${product.name}</div>
+        ${priceHTML}
+      </div>
+    </a>`;
+}
+
+// Листинг товаров с фильтрами (память/цвет/цена) и сортировкой
+function renderListing(products, hrefBuilder){
   if (!products.length){
     document.getElementById("app").innerHTML = emptyState();
     return;
   }
-  document.getElementById("app").innerHTML = `<div class="grid">
-    ${products.map(p => `
-      <a class="tile" href="${hrefBuilder(p.name)}">
-        <div class="tile-name">${p.name}</div>
-      </a>`).join("")}
-  </div>`;
+
+  const facets = collectFacets(products);
+  const state = {
+    memories: new Set(),
+    colors: new Set(),
+    priceMin: facets.minPrice,
+    priceMax: facets.maxPrice,
+    sort: "default",
+  };
+
+  function applyFiltersAndRender(){
+    let filtered = products.filter(p => {
+      if (!productMatchesFacets(p, state.memories, state.colors)) return false;
+      const start = getStartPrice(p);
+      if (start === null) return true; // товары без цены не прячем - им "уточняется" всё равно интересно видеть
+      return start >= state.priceMin && start <= state.priceMax;
+    });
+
+    if (state.sort === "price_asc"){
+      filtered = filtered.slice().sort((a, b) => (getStartPrice(a) ?? Infinity) - (getStartPrice(b) ?? Infinity));
+    } else if (state.sort === "price_desc"){
+      filtered = filtered.slice().sort((a, b) => (getStartPrice(b) ?? -Infinity) - (getStartPrice(a) ?? -Infinity));
+    } else if (state.sort === "name"){
+      filtered = filtered.slice().sort((a, b) => a.name.localeCompare(b.name, "ru"));
+    }
+
+    document.getElementById("listingCount").textContent = `${filtered.length} из ${products.length}`;
+    document.getElementById("listingGrid").innerHTML = filtered.length
+      ? `<div class="grid">${filtered.map(p => productCardHTML(p, hrefBuilder(p.name))).join("")}</div>`
+      : `<div class="state">Ничего не найдено по выбранным фильтрам.</div>`;
+  }
+
+  const hasVariants = facets.memories.length > 0 || facets.colors.length > 0;
+
+  document.getElementById("app").innerHTML = `
+    <div class="listing-layout">
+      <aside class="filters">
+        ${facets.memories.length ? `
+        <div class="filter-group">
+          <h4>Память</h4>
+          ${facets.memories.map(m => `
+            <label class="check"><input type="checkbox" data-filter="memory" value="${m}"> ${m}</label>
+          `).join("")}
+        </div>` : ""}
+        ${facets.colors.length ? `
+        <div class="filter-group">
+          <h4>Цвет</h4>
+          ${facets.colors.map(c => `
+            <label class="check"><input type="checkbox" data-filter="color" value="${c}"> ${c}</label>
+          `).join("")}
+        </div>` : ""}
+        <div class="filter-group">
+          <h4>Цена, ₽</h4>
+          <div class="price-range-inputs">
+            <input type="number" id="priceMinInput" value="${facets.minPrice}" min="0">
+            <span>—</span>
+            <input type="number" id="priceMaxInput" value="${facets.maxPrice}" min="0">
+          </div>
+        </div>
+      </aside>
+      <div>
+        <div class="listing-toolbar">
+          <span class="listing-count" id="listingCount"></span>
+          <select class="sort-select" id="sortSelect">
+            <option value="default">По умолчанию</option>
+            <option value="price_asc">Сначала дешевле</option>
+            <option value="price_desc">Сначала дороже</option>
+            <option value="name">По названию</option>
+          </select>
+        </div>
+        <div id="listingGrid"></div>
+      </div>
+    </div>`;
+
+  document.querySelectorAll('[data-filter="memory"]').forEach(el => {
+    el.addEventListener("change", () => {
+      el.checked ? state.memories.add(el.value) : state.memories.delete(el.value);
+      applyFiltersAndRender();
+    });
+  });
+  document.querySelectorAll('[data-filter="color"]').forEach(el => {
+    el.addEventListener("change", () => {
+      el.checked ? state.colors.add(el.value) : state.colors.delete(el.value);
+      applyFiltersAndRender();
+    });
+  });
+  document.getElementById("priceMinInput").addEventListener("change", (e) => {
+    state.priceMin = Number(e.target.value) || 0;
+    applyFiltersAndRender();
+  });
+  document.getElementById("priceMaxInput").addEventListener("change", (e) => {
+    state.priceMax = Number(e.target.value) || facets.maxPrice;
+    applyFiltersAndRender();
+  });
+  document.getElementById("sortSelect").addEventListener("change", (e) => {
+    state.sort = e.target.value;
+    applyFiltersAndRender();
+  });
+
+  applyFiltersAndRender();
 }
 
 function renderCategory(data, cat){
@@ -194,9 +405,8 @@ function renderCategory(data, cat){
 
   // Бренд без подкатегорий - сразу список моделей
   setCrumbs([{label: "Каталог", href: "?"}, {label: catData.name}]);
-  renderProductGrid(
+  renderListing(
     catData.products,
-    catData.name,
     m => `?cat=${encodeURIComponent(cat)}&model=${encodeURIComponent(m)}`
   );
 }
@@ -214,9 +424,8 @@ function renderSubcategory(data, cat, sub){
     {label: subData.name},
   ]);
   document.getElementById("pageTitle").textContent = subData.name;
-  renderProductGrid(
+  renderListing(
     subData.products,
-    subData.name,
     m => `?cat=${encodeURIComponent(cat)}&sub=${encodeURIComponent(sub)}&model=${encodeURIComponent(m)}`
   );
 }

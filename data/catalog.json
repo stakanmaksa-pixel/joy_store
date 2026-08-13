@@ -96,18 +96,39 @@
             "regionLabel": "Тип SIM-карты",
             "prices": {
               "256GB": {
-                "Black": {},
-                "White": {},
-                "Lavender": {},
-                "Sage": {},
-                "Mist Blue": {}
+                "Black": {
+                  "ESIM": 71500,
+                  "SIM_ESIM": 72400
+                },
+                "Blue": {
+                  "ESIM": 71500,
+                  "SIM_ESIM": 71700
+                },
+                "Lavender": {
+                  "ESIM": 72000,
+                  "SIM_ESIM": 73400
+                },
+                "White": {
+                  "SIM_ESIM": 72500
+                },
+                "Sage": {
+                  "SIM_ESIM": 72400
+                }
               },
               "512GB": {
-                "Black": {},
-                "White": {},
-                "Lavender": {},
-                "Sage": {},
-                "Mist Blue": {}
+                "Black": {
+                  "ESIM": 84500,
+                  "SIM_ESIM": 87000
+                },
+                "Blue": {
+                  "SIM_ESIM": 88000
+                },
+                "White": {
+                  "SIM_ESIM": 88300
+                },
+                "Lavender": {
+                  "SIM_ESIM": 89300
+                }
               }
             }
           },
@@ -149,6 +170,10 @@
           }
         ]
       },
+      "ipad": {
+        "name": "iPad",
+        "products": []
+      },
       "airpods": {
         "name": "AirPods",
         "products": [
@@ -170,7 +195,25 @@
           },
           {
             "name": "AirPods Max 2 2026",
-            "price": 42000
+            "hasMemory": false,
+            "prices": {
+              "Синий": {
+                "RU": 42000
+              },
+              "Фиолетовый": {
+                "RU": 42000
+              },
+              "Полуночный": {
+                "RU": 42000
+              },
+              "Звёздный": {
+                "RU": 42000
+              },
+              "Оранжевый": {
+                "RU": 42000
+              }
+            },
+            "regionLabel": "Наличие"
           }
         ]
       },
@@ -188,7 +231,16 @@
       },
       "apple-tv": {
         "name": "Apple TV",
-        "products": []
+        "products": [
+          {
+            "name": "Apple TV 4K 64 ГБ (3-го поколения)",
+            "price": 15900
+          },
+          {
+            "name": "Apple TV 4K 128 ГБ (3-го поколения)",
+            "price": 19900
+          }
+        ]
       }
     }
   },
