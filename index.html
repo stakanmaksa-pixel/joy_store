@@ -490,7 +490,7 @@ function renderProduct(data, cat, sub, model){
     return;
   }
 
-  // Простой товар без вариантов - одна строка, одна цена, без таблицы
+  // Простой товар без вариантов - одна цена, без сетки
   if (rows.length === 1 && !rows[0].memory && !rows[0].color){
     document.getElementById("app").innerHTML = `
       <div class="price-block" style="border-top:none; padding-top:0;">
@@ -500,49 +500,37 @@ function renderProduct(data, cat, sub, model){
     return;
   }
 
-  const showMemoryCol = rows.some(r => r.memory);
-  const showColorCol = rows.some(r => r.color);
-  const distinctThirds = new Set(rows.map(r => r.third).filter(Boolean));
-  const showThirdCol = distinctThirds.size > 1;
-  const thirdLabel = product.regionLabel || "Регион";
+  const showThirdLabel = new Set(rows.map(r => r.third).filter(Boolean)).size > 1;
 
-  // Сортируем строки для стабильного порядка: по памяти (в порядке появления), затем по цвету, затем по третьему измерению
+  // Сортируем для стабильного порядка: по памяти, затем по цвету (в порядке появления в данных)
   const memOrder = [...new Set(rows.map(r => r.memory).filter(Boolean))];
   const colorOrder = [...new Set(rows.map(r => r.color).filter(Boolean))];
   rows.sort((a, b) => {
-    if (showMemoryCol && a.memory !== b.memory) return memOrder.indexOf(a.memory) - memOrder.indexOf(b.memory);
-    if (showColorCol && a.color !== b.color) return colorOrder.indexOf(a.color) - colorOrder.indexOf(b.color);
+    if (a.memory !== b.memory) return memOrder.indexOf(a.memory) - memOrder.indexOf(b.memory);
+    if (a.color !== b.color) return colorOrder.indexOf(a.color) - colorOrder.indexOf(b.color);
     return 0;
   });
 
+  function variantCardHTML(row){
+    const subtitleParts = [row.memory, row.color, showThirdLabel ? (REGION_LABEL[row.third] || row.third) : null].filter(Boolean);
+    const itemDesc = [model, ...subtitleParts].join(", ");
+    const hex = COLOR_HEX[row.color] || { a: "#4f7cff", b: "#152036" };
+    return `
+      <a class="product-card" href="order.html?item=${encodeURIComponent(itemDesc)}">
+        <div class="card-photo"><div class="card-visual" style="--v-a:${hex.a};--v-b:${hex.b};"></div></div>
+        <div class="card-body">
+          <div class="card-name">${model}</div>
+          <div class="card-sub">${subtitleParts.join(" · ")}</div>
+          <div class="card-price">${fmtPrice(row.price)}</div>
+        </div>
+      </a>`;
+  }
+
   document.getElementById("app").innerHTML = `
-    <div class="variant-table-wrap">
-      <table class="variant-table">
-        <thead>
-          <tr>
-            ${showMemoryCol ? "<th>Память</th>" : ""}
-            ${showColorCol ? "<th>Цвет</th>" : ""}
-            ${showThirdCol ? `<th>${thirdLabel}</th>` : ""}
-            <th>Цена</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map(r => {
-            const itemDesc = [model, r.memory, r.color, showThirdCol ? (REGION_LABEL[r.third] || r.third) : null]
-              .filter(Boolean).join(", ");
-            return `
-            <tr>
-              ${showMemoryCol ? `<td>${r.memory || "—"}</td>` : ""}
-              ${showColorCol ? `<td>${r.color ? `<span class="swatch" style="background:${(COLOR_HEX[r.color]||{a:'#888'}).a}"></span>${r.color}` : "—"}</td>` : ""}
-              ${showThirdCol ? `<td>${REGION_LABEL[r.third] || r.third}</td>` : ""}
-              <td class="variant-price">${fmtPrice(r.price)}</td>
-              <td><a class="buy-row" href="order.html?item=${encodeURIComponent(itemDesc)}">Купить</a></td>
-            </tr>`;
-          }).join("")}
-        </tbody>
-      </table>
-    </div>`;
+    <div class="listing-toolbar">
+      <span class="listing-count">${rows.length} товаров</span>
+    </div>
+    <div class="grid">${rows.map(variantCardHTML).join("")}</div>`;
 }
 
 fetch("data/catalog.json", { cache: "no-store" })
