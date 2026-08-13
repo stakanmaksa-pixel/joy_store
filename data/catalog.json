@@ -1,0 +1,62 @@
+{
+  "iphone": {
+    "name": "iPhone",
+    "products": {
+      "17 Pro Max": {
+        "hasMemory": true,
+        "prices": {
+          "256GB": {
+            "Blue":   { "JP": 97000,  "HK": 105200 },
+            "Orange": { "JP": 97100,  "HK": 105400 },
+            "Silver": { "JP": 98100,  "HK": 107500 }
+          },
+          "512GB": {
+            "Blue":   { "JP": 115000, "HK": 124500 },
+            "Orange": { "JP": 113200, "HK": 121800 },
+            "Silver": { "JP": 113100, "HK": 124800 }
+          },
+          "1TB": {
+            "Blue":   { "JP": 128400, "HK": 138600 },
+            "Orange": { "JP": 128900, "HK": 140600 },
+            "Silver": { "JP": 129700, "HK": 139100 }
+          },
+          "2TB": {
+            "Blue":   { "JP": 143800, "HK": 165200 },
+            "Orange": { "JP": 142700, "HK": 163600 },
+            "Silver": { "JP": 156000, "HK": 168000 }
+          }
+        }
+      }
+    }
+  },
+  "samsung": {
+    "name": "Samsung",
+    "products": {
+      "Galaxy S25 Ultra": {
+        "hasMemory": true,
+        "prices": {
+          "256GB": {
+            "Black": { "JP": 89000, "HK": 95000 },
+            "Grey":  { "JP": 89500, "HK": 95500 }
+          },
+          "512GB": {
+            "Black": { "JP": 99000, "HK": 106000 },
+            "Grey":  { "JP": 99500, "HK": 106500 }
+          }
+        }
+      }
+    }
+  },
+  "dyson": {
+    "name": "Dyson",
+    "products": {
+      "Airwrap": {
+        "hasMemory": false,
+        "prices": {
+          "Nickel/Copper": { "UK": 45000, "JP": 42000 },
+          "Vinca Blue":    { "UK": 46000, "JP": 43000 }
+        }
+      }
+    }
+  }
+}
