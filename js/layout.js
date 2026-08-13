@@ -35,9 +35,12 @@ async function initLayout() {
     if (link) link.classList.add("active");
   }
 
-  // Год в подвале
+  // Год в подвале — диапазон с года основания до текущего
   const yearEl = document.getElementById("footerYear");
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
+  if (yearEl) {
+    const currentYear = new Date().getFullYear();
+    yearEl.textContent = currentYear > 2023 ? `2023–${currentYear}` : "2023";
+  }
 
   // Мобильное меню (бургер)
   const burger = document.getElementById("burgerBtn");

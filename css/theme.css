@@ -133,6 +133,41 @@ a{ color: inherit; }
 .info-card h3{ margin: 0 0 8px; font-size: 15px; }
 .info-card p{ margin: 0; color: var(--muted); }
 
+/* ---------- Аккордеон (Политика конфиденциальности и т.п.) ---------- */
+.accordion-item{
+  border-bottom: 1px solid var(--line);
+}
+.accordion-item summary{
+  cursor: pointer;
+  padding: 18px 0;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  list-style: none;
+  color: var(--text);
+}
+.accordion-item summary::-webkit-details-marker{ display: none; }
+.accordion-item summary::after{
+  content: "+";
+  font-size: 22px;
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-left: 16px;
+  transition: transform .15s;
+}
+.accordion-item[open] summary::after{ content: "×"; }
+.accordion-item summary:hover{ color: var(--accent-2); }
+.accordion-body{
+  padding-bottom: 20px;
+  color: var(--text);
+  line-height: 1.6;
+}
+.accordion-body p{ margin: 0 0 14px; }
+.accordion-body ul{ margin: 0 0 14px; padding-left: 20px; }
+.accordion-body li{ margin-bottom: 8px; }
+
 /* ---------- Отзывы ---------- */
 .review-card{
   background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
