@@ -24,8 +24,8 @@ async function loadPartial(url, mountId) {
 
 async function initLayout() {
   await Promise.all([
-    loadPartial("/partials/header.html", "site-header"),
-    loadPartial("/partials/footer.html", "site-footer"),
+    loadPartial("partials/header.html", "site-header"),
+    loadPartial("partials/footer.html", "site-footer"),
   ]);
 
   // Подсветка активного пункта меню
