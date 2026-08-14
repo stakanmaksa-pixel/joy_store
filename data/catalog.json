@@ -74,19 +74,46 @@
             "regionLabel": "Тип SIM-карты",
             "prices": {
               "256GB": {
-                "Blue": {},
-                "Orange": {},
-                "Silver": {}
+                "Blue": {
+                  "ESIM": 96400,
+                  "SIM_ESIM": 99300
+                },
+                "Orange": {
+                  "ESIM": 93000,
+                  "SIM_ESIM": 96200
+                },
+                "Silver": {
+                  "ESIM": 96400,
+                  "SIM_ESIM": 100300
+                }
               },
               "512GB": {
-                "Blue": {},
-                "Orange": {},
-                "Silver": {}
+                "Blue": {
+                  "ESIM": 113800,
+                  "SIM_ESIM": 117400
+                },
+                "Orange": {
+                  "ESIM": 110700,
+                  "SIM_ESIM": 114500
+                },
+                "Silver": {
+                  "ESIM": 111800,
+                  "SIM_ESIM": 117500
+                }
               },
               "1TB": {
-                "Blue": {},
-                "Orange": {},
-                "Silver": {}
+                "Blue": {
+                  "ESIM": 124900,
+                  "SIM_ESIM": 137000
+                },
+                "Orange": {
+                  "ESIM": 123200,
+                  "SIM_ESIM": 131200
+                },
+                "Silver": {
+                  "ESIM": 127500,
+                  "SIM_ESIM": 136000
+                }
               }
             }
           },
@@ -133,10 +160,87 @@
             }
           },
           {
-            "name": "17e"
+            "name": "17e",
+            "hasMemory": true,
+            "regionLabel": "Тип SIM-карты",
+            "prices": {
+              "256GB": {
+                "Black": {
+                  "SIM_ESIM": 55000
+                },
+                "White": {
+                  "SIM_ESIM": 54000
+                },
+                "Pink": {
+                  "SIM_ESIM": 54500
+                }
+              },
+              "512GB": {
+                "Black": {
+                  "ESIM": 65500,
+                  "SIM_ESIM": 71800
+                },
+                "White": {
+                  "ESIM": 66500,
+                  "SIM_ESIM": 71900
+                },
+                "Soft Pink": {
+                  "ESIM": 66500
+                },
+                "Pink": {
+                  "SIM_ESIM": 72800
+                }
+              }
+            }
           },
           {
-            "name": "Air"
+            "name": "Air",
+            "hasMemory": true,
+            "regionLabel": "Тип SIM-карты",
+            "prices": {
+              "256GB": {
+                "Black": {
+                  "ESIM": 71000
+                },
+                "Blue": {
+                  "ESIM": 70000
+                },
+                "White": {
+                  "ESIM": 71800
+                },
+                "Gold": {
+                  "ESIM": 71800
+                }
+              },
+              "512GB": {
+                "Black": {
+                  "ESIM": 81000
+                },
+                "Blue": {
+                  "ESIM": 76700
+                },
+                "White": {
+                  "ESIM": 83300
+                },
+                "Gold": {
+                  "ESIM": 77200
+                }
+              },
+              "1TB": {
+                "Black": {
+                  "ESIM": 86000
+                },
+                "Blue": {
+                  "ESIM": 83000
+                },
+                "White": {
+                  "ESIM": 93500
+                },
+                "Gold": {
+                  "ESIM": 86800
+                }
+              }
+            }
           },
           {
             "name": "16 Pro Max"
