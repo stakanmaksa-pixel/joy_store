@@ -6,89 +6,121 @@
 <title>Каталог</title>
 <link rel="stylesheet" href="css/theme.css">
 <style>
-  .wrap{ max-width: 1040px; margin: 0 auto; padding: 40px 24px 96px; }
-  .crumbs{
-    font-size: 13px;
-    color: var(--muted);
-    margin-bottom: 20px;
-  }
+  /* Стили каталога/товарных страниц (сетки, фильтры, карточки, кнопка "Купить" и т.п.)
+     теперь живут в css/theme.css - здесь только разметка, специфичная для этой страницы. */
+  .wrap{ max-width: 1160px; margin: 0 auto; padding: 48px 24px 96px; }
+  #catalogWrapSection.is-home{ background: var(--lavender); padding-bottom: 72px; }
+  #catalogWrapSection.is-home .cta-band{ margin-top: 8px; }
+  .crumbs{ font-size: 13px; color: var(--muted); margin-bottom: 20px; }
   .crumbs a{ color: var(--muted); text-decoration: none; }
-  .crumbs a:hover{ color: var(--accent-2); }
-  h1{ font-size: clamp(28px, 4.5vw, 42px); margin: 0 0 28px; font-weight: 700; letter-spacing: -0.02em; }
-
-  /* --- Плитки категорий / моделей --- */
-  .grid{
-    display:grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 16px;
+  .crumbs a:hover{ color: var(--accent); }
+  .wrap h1{ font-family: var(--font-display); font-size: clamp(28px, 4.5vw, 42px); margin: 0 0 28px; font-weight: 800; letter-spacing: -0.01em; }
+  #homeCatalogHeading{
+    font-family: var(--font-display); font-weight: 800; text-align:center;
+    font-size: clamp(28px, 4vw, 40px); margin: 0 0 36px; color: var(--text);
   }
-  .tile{
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 28px 20px;
-    text-decoration: none;
-    color: var(--text);
-    display:flex; flex-direction:column; gap:8px;
-    transition: border-color .15s, transform .15s;
-  }
-  .tile:hover{ border-color: var(--accent-2); transform: translateY(-2px); }
-  .tile .tile-name{ font-size: 18px; font-weight: 600; }
-  .tile .tile-sub{ font-size: 13px; color: var(--muted); }
-
-  /* --- Товарная страница --- */
-  .layout{ display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; }
-  @media (max-width: 800px){ .layout{ grid-template-columns: 1fr; } }
-  .stage{
-    background: radial-gradient(circle at 30% 20%, #1e2530, var(--panel) 70%);
-    border: 1px solid var(--line);
-    border-radius: 24px;
-    aspect-ratio: 1 / 1;
-    display:flex; align-items:center; justify-content:center;
-    overflow:hidden;
-  }
-  .stage .visual{
-    width: 46%;
-    aspect-ratio: 9/19;
-    border-radius: 34px;
-    border: 2px solid rgba(255,255,255,.14);
-    background: linear-gradient(160deg, var(--v-a, #3a5fce), var(--v-b, #17203a));
-    box-shadow: 0 30px 60px -20px rgba(0,0,0,.6);
-  }
-  .panel{ display:flex; flex-direction:column; gap: 28px; }
-  .group-label{ font-size: 13px; color: var(--muted); margin-bottom: 10px; }
-  .options{ display:flex; flex-wrap: wrap; gap: 8px; }
-  .opt{
-    border: 1px solid var(--line);
-    background: var(--panel);
-    color: var(--text);
-    padding: 10px 16px;
-    border-radius: 10px;
-    font-size: 14px;
-    cursor: pointer;
-  }
-  .opt:hover{ border-color: var(--accent-2); }
-  .opt.active{ border-color: var(--accent); background: var(--panel-2); box-shadow: 0 0 0 1px var(--accent) inset; }
-  .opt.color-opt{ display:flex; align-items:center; gap:8px; }
-  .swatch{ width: 14px; height:14px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); }
-  .price-block{ margin-top: 8px; padding-top: 24px; border-top: 1px solid var(--line); }
-  .price{ font-size: 40px; font-weight: 700; letter-spacing: -0.01em; }
-  .price-note{ color: var(--muted); font-size: 13px; margin-top: 4px;}
-  .buy{
-    margin-top: 20px; width: 100%; padding: 16px; border: none; border-radius: 12px;
-    background: var(--accent); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer;
-  }
-  .buy:hover{ filter: brightness(1.08); }
-  .state{ color: var(--muted); font-size: 14px; }
+  #homeCatalogHeading .accent{ color: var(--accent); }
 </style>
 </head>
 <body>
   <div id="site-header"></div>
-  <div class="wrap">
-    <div class="crumbs" id="crumbs"></div>
-    <h1 id="pageTitle">Загрузка…</h1>
-    <div id="app"><div class="state">Загружаю каталог…</div></div>
-  </div>
+
+  <section class="hero" id="homeHero" hidden>
+    <div class="hero-visual"></div>
+    <div class="hero-inner">
+      <h1>iJoy</h1>
+      <p>Техника Apple по лучшим ценам</p>
+      <a href="index.html?cat=apple" class="btn-pill">Каталог</a>
+    </div>
+  </section>
+
+  <section id="catalogWrapSection">
+    <div class="wrap" id="catalogWrap">
+      <h2 id="homeCatalogHeading" hidden>Каталог <span class="accent">товаров</span></h2>
+      <div class="crumbs" id="crumbs"></div>
+      <h1 id="pageTitle">Загрузка…</h1>
+      <div id="app"><div class="state">Загружаю каталог…</div></div>
+    </div>
+
+    <div class="cta-band" id="notFoundCta" hidden>
+      <h3>Не нашли нужный гаджет?</h3>
+      <p>Оставьте заявку сейчас, перезвоним через 15 минут!</p>
+      <form class="quick-form" data-quick-form data-form-type="Не нашли гаджет">
+        <input type="text" name="name" placeholder="Ваше имя*" required>
+        <input type="tel" name="phone" placeholder="+7 (000) 000-00-00" required>
+        <button type="submit">Отправить</button>
+      </form>
+      <div class="form-status" style="text-align:center"></div>
+      <p class="consent-note">Нажимая на кнопку, вы даёте согласие на обработку своих персональных данных и соглашаетесь с <a href="policy.html">политикой конфиденциальности</a></p>
+    </div>
+  </section>
+
+  <section class="features-dark" id="homeFeatures" hidden>
+    <div class="features-inner">
+      <div class="features-text">
+        <h2>Ваш надежный <span class="accent">продавец</span></h2>
+        <p>Мы доставляем все наши товары точно в срок и следим за тем, чтобы весь процесс покупки в интернет магазине iJoy store — всегда был качественным на каждом этапе покупки.</p>
+        <p>Наши специалисты всегда Вам все подскажут и проинформируют о состоянии Вашего заказа.</p>
+        <p>Работаем для Вас: Пн-Вс с 11:00 до 20:00.</p>
+        <a href="https://t.me/iPhoneJoy_ru" target="_blank" rel="noopener" class="btn-pill">Подобрать gadget</a>
+      </div>
+      <div class="features-icons">
+        <div class="feature-circle">
+          <svg viewBox="0 0 24 24"><path d="M8 3H3v5M21 8V3h-5M16 21h5v-5M3 16v5h5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="feature-circle solid">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4" stroke-linecap="round"/></svg>
+        </div>
+        <div class="feature-circle solid">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="feature-circle">
+          <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 2.5-5 6-5s6 2 6 5" stroke-linecap="round"/><circle cx="18" cy="9" r="2.3"/><path d="M15.5 20c.2-2.2 1.7-3.7 3.5-3.9" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq-section" id="homeFaq" hidden>
+    <h2 class="faq-heading">Популярные <span class="accent">вопросы</span></h2>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary><span><span class="faq-num">1.</span> Как происходит оплата товара?</span></summary>
+        <div class="faq-body">Наличными или картой при получении — курьеру или в момент самовывоза. Полная предоплата не требуется.</div>
+      </details>
+      <details class="faq-item">
+        <summary><span><span class="faq-num">4.</span> Пришел другой товар?</span></summary>
+        <div class="faq-body">Свяжитесь с нами сразу же в Telegram или по телефону — разберёмся и заменим товар на нужный.</div>
+      </details>
+      <details class="faq-item">
+        <summary><span><span class="faq-num">2.</span> Гарантии на устройства?</span></summary>
+        <div class="faq-body">12 месяцев гарантии на заводской брак в нашем сервисном центре. Подробности на странице <a href="guarantee.html">«Гарантия»</a>.</div>
+      </details>
+      <details class="faq-item">
+        <summary><span><span class="faq-num">5.</span> Продаем гаджеты оптом?</span></summary>
+        <div class="faq-body">Да, рассматриваем оптовые запросы — напишите нам в Telegram, обсудим условия.</div>
+      </details>
+      <details class="faq-item">
+        <summary><span><span class="faq-num">3.</span> Как работает доставка?</span></summary>
+        <div class="faq-body">Курьером по Москве и области, а также Яндекс Доставкой и СДЭК по всей России. Подробности на странице <a href="delivery.html">«Доставка»</a>.</div>
+      </details>
+    </div>
+  </section>
+
+  <section class="feedback-dark" id="homeFeedback" hidden>
+    <div class="feedback-inner">
+      <h2>Обратная <span class="accent">связь</span></h2>
+      <p>Ответим на все интересующие вопросы!</p>
+      <form class="underline-form" data-quick-form data-form-type="Обратная связь">
+        <input type="text" name="name" placeholder="Ваше имя*" required>
+        <input type="tel" name="phone" placeholder="+7 (000) 000-00-00" required>
+        <textarea name="comment" placeholder="Ваш вопрос (необязательно)"></textarea>
+        <button type="submit" class="btn-pill light">Отправить</button>
+        <div class="form-status" style="text-align:center"></div>
+      </form>
+      <p class="consent-note">Нажимая на кнопку, вы даёте согласие на обработку своих персональных данных и соглашаетесь с <a href="policy.html">политикой конфиденциальности</a></p>
+    </div>
+  </section>
 
 <script>
 const COLOR_HEX = {
@@ -203,6 +235,19 @@ const catKey = params.get("cat");
 const subKey = params.get("sub");
 const modelKey = params.get("model");
 document.body.dataset.page = catKey ? "catalog" : "home";
+
+// Главная (без ?cat=) показывает хиро/преимущества/FAQ/обратную связь вокруг плиток каталога;
+// страницы каталога (?cat=...) показывают только сам каталог/товар в обычной светлой обёртке.
+if (!catKey) {
+  document.getElementById("homeHero").hidden = false;
+  document.getElementById("homeFeatures").hidden = false;
+  document.getElementById("homeFaq").hidden = false;
+  document.getElementById("homeFeedback").hidden = false;
+  document.getElementById("notFoundCta").hidden = false;
+  document.getElementById("homeCatalogHeading").hidden = false;
+  document.getElementById("pageTitle").hidden = true;
+  document.getElementById("catalogWrapSection").classList.add("is-home");
+}
 
 function setCrumbs(parts){
   document.getElementById("crumbs").innerHTML = parts
@@ -501,22 +546,31 @@ function renderProduct(data, cat, sub, model){
   }
 
   const showThirdLabel = new Set(rows.map(r => r.third).filter(Boolean)).size > 1;
+  const thirdLabelTitle = product.regionLabel || "Регион";
 
   // Сортируем для стабильного порядка: по памяти, затем по цвету (в порядке появления в данных)
   const memOrder = [...new Set(rows.map(r => r.memory).filter(Boolean))];
   const colorOrder = [...new Set(rows.map(r => r.color).filter(Boolean))];
+  const thirdOrder = [...new Set(rows.map(r => r.third).filter(Boolean))];
   rows.sort((a, b) => {
     if (a.memory !== b.memory) return memOrder.indexOf(a.memory) - memOrder.indexOf(b.memory);
     if (a.color !== b.color) return colorOrder.indexOf(a.color) - colorOrder.indexOf(b.color);
     return 0;
   });
 
-  function variantCardHTML(row){
+  // Базовая ссылка на список вариантов этой модели (без выбранного варианта) - для href карточек и кнопки "назад"
+  const listHref = `?cat=${encodeURIComponent(cat)}${sub ? `&sub=${encodeURIComponent(sub)}` : ""}&model=${encodeURIComponent(model)}`;
+
+  function variantDesc(row){
     const subtitleParts = [row.memory, row.color, showThirdLabel ? (REGION_LABEL[row.third] || row.third) : null].filter(Boolean);
-    const itemDesc = [model, ...subtitleParts].join(", ");
+    return { subtitleParts, itemDesc: [model, ...subtitleParts].join(", ") };
+  }
+
+  function variantCardHTML(row, idx){
+    const { subtitleParts } = variantDesc(row);
     const hex = COLOR_HEX[row.color] || { a: "#4f7cff", b: "#152036" };
     return `
-      <a class="product-card" href="order.html?item=${encodeURIComponent(itemDesc)}">
+      <a class="product-card" href="${listHref}&v=${idx}">
         <div class="card-photo"><div class="card-visual" style="--v-a:${hex.a};--v-b:${hex.b};"></div></div>
         <div class="card-body">
           <div class="card-name">${model}</div>
@@ -526,11 +580,120 @@ function renderProduct(data, cat, sub, model){
       </a>`;
   }
 
+  // Открыта конкретная карточка варианта (клик по товару в сетке) - показываем детальную карточку с кнопкой "Купить"
+  const variantIdx = params.get("v");
+  if (variantIdx !== null && rows[Number(variantIdx)]){
+    const row = rows[Number(variantIdx)];
+    const { subtitleParts, itemDesc } = variantDesc(row);
+    const hex = COLOR_HEX[row.color] || { a: "#4f7cff", b: "#152036" };
+    const crumbsWithVariant = crumbs.slice(0, -1)
+      .concat([{label: model, href: listHref}, {label: subtitleParts.join(" · ") || model}]);
+    setCrumbs(crumbsWithVariant);
+    document.getElementById("app").innerHTML = `
+      <div class="layout">
+        <div class="stage"><div class="visual" style="--v-a:${hex.a};--v-b:${hex.b};"></div></div>
+        <div class="panel">
+          <div>
+            <div class="group-label">${subtitleParts.join(" · ")}</div>
+            <h2 style="margin:0; font-size:22px; font-weight:700;">${model}</h2>
+          </div>
+          <div class="price-block" style="border-top:none; padding-top:0;">
+            <div class="price">${fmtPrice(row.price)}</div>
+            <a class="buy" style="display:block; text-align:center; text-decoration:none; box-sizing:border-box; line-height:1.2; padding-top:16px;" href="order.html?item=${encodeURIComponent(itemDesc)}">Купить за ${fmtPrice(row.price)}</a>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:24px;">
+        <a href="${listHref}" style="color:var(--muted); font-size:13px; text-decoration:none;">← Назад к списку вариантов</a>
+      </div>`;
+    return;
+  }
+
+  // Если фильтровать нечего (нет памяти/цвета/региона-вариантов у товара) - просто сетка без боковой панели
+  if (!memOrder.length && !colorOrder.length && !(showThirdLabel && thirdOrder.length)){
+    document.getElementById("app").innerHTML = `
+      <div class="listing-toolbar">
+        <span class="listing-count">${rows.length} товаров</span>
+      </div>
+      <div class="grid">${rows.map(variantCardHTML).join("")}</div>`;
+    return;
+  }
+
+  const state = {
+    memories: new Set(),
+    colors: new Set(),
+    thirds: new Set(),
+  };
+
+  function applyFiltersAndRender(){
+    // filter() ломает исходные индексы, поэтому сначала помечаем строки их индексом в rows, затем фильтруем
+    const filtered = rows
+      .map((r, idx) => ({ r, idx }))
+      .filter(({ r }) => {
+        if (state.memories.size && !(r.memory && state.memories.has(r.memory))) return false;
+        if (state.colors.size && !(r.color && state.colors.has(r.color))) return false;
+        if (state.thirds.size && !(r.third && state.thirds.has(r.third))) return false;
+        return true;
+      });
+    document.getElementById("listingCount").textContent = `${filtered.length} из ${rows.length}`;
+    document.getElementById("listingGrid").innerHTML = filtered.length
+      ? `<div class="grid">${filtered.map(({ r, idx }) => variantCardHTML(r, idx)).join("")}</div>`
+      : `<div class="state">Ничего не найдено по выбранным фильтрам.</div>`;
+  }
+
   document.getElementById("app").innerHTML = `
-    <div class="listing-toolbar">
-      <span class="listing-count">${rows.length} товаров</span>
-    </div>
-    <div class="grid">${rows.map(variantCardHTML).join("")}</div>`;
+    <div class="listing-layout">
+      <aside class="filters">
+        ${memOrder.length ? `
+        <div class="filter-group">
+          <h4>Память</h4>
+          ${memOrder.map(m => `
+            <label class="check"><input type="checkbox" data-filter="memory" value="${m}"> ${m}</label>
+          `).join("")}
+        </div>` : ""}
+        ${colorOrder.length ? `
+        <div class="filter-group">
+          <h4>Цвет</h4>
+          ${colorOrder.map(c => `
+            <label class="check"><input type="checkbox" data-filter="color" value="${c}"> ${c}</label>
+          `).join("")}
+        </div>` : ""}
+        ${showThirdLabel && thirdOrder.length ? `
+        <div class="filter-group">
+          <h4>${thirdLabelTitle}</h4>
+          ${thirdOrder.map(t => `
+            <label class="check"><input type="checkbox" data-filter="third" value="${t}"> ${REGION_LABEL[t] || t}</label>
+          `).join("")}
+        </div>` : ""}
+      </aside>
+      <div>
+        <div class="listing-toolbar">
+          <span class="listing-count" id="listingCount"></span>
+        </div>
+        <div id="listingGrid"></div>
+      </div>
+    </div>`;
+
+  document.querySelectorAll('[data-filter="memory"]').forEach(el => {
+    el.addEventListener("change", () => {
+      el.checked ? state.memories.add(el.value) : state.memories.delete(el.value);
+      applyFiltersAndRender();
+    });
+  });
+  document.querySelectorAll('[data-filter="color"]').forEach(el => {
+    el.addEventListener("change", () => {
+      el.checked ? state.colors.add(el.value) : state.colors.delete(el.value);
+      applyFiltersAndRender();
+    });
+  });
+  document.querySelectorAll('[data-filter="third"]').forEach(el => {
+    el.addEventListener("change", () => {
+      el.checked ? state.thirds.add(el.value) : state.thirds.delete(el.value);
+      applyFiltersAndRender();
+    });
+  });
+
+  applyFiltersAndRender();
 }
 
 fetch("data/catalog.json", { cache: "no-store" })

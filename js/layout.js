@@ -11,6 +11,9 @@
  * Значение должно совпадать с data-page у нужной ссылки в partials/header.html
  */
 
+// Замени на реальный адрес после деплоя form-notify на Timeweb
+const NOTIFY_ENDPOINT = "https://stakanmaksa-pixel-form-notify-9363.twc1.net/submit";
+
 async function loadPartial(url, mountId) {
   const mount = document.getElementById(mountId);
   if (!mount) return;
@@ -27,6 +30,9 @@ async function initLayout() {
     loadPartial("partials/header.html", "site-header"),
     loadPartial("partials/footer.html", "site-footer"),
   ]);
+
+  // Попапы грузятся в контейнер, который footer.html кладёт после себя
+  await loadPartial("partials/popups.html", "popups-mount");
 
   // Подсветка активного пункта меню
   const currentPage = document.body.dataset.page;
@@ -55,7 +61,90 @@ async function initLayout() {
   if (cartBtn) cartBtn.addEventListener("click", () => alert("Корзина скоро будет здесь"));
   if (favBtn) favBtn.addEventListener("click", () => alert("Избранное скоро будет здесь"));
 
+  initPopups();
+  initQuickForms();
   await initMegaMenu();
+}
+
+/**
+ * Попапы форм (Оформить заказ / Trade-In / Гарантия / Обратный звонок / Вопрос / Доставка).
+ * Открываются любым элементом с data-popup="order|trade-in|warranty|callback|question|delivery"
+ * в любом месте страницы (шапка, подвал, кнопки в тексте).
+ */
+function initPopups() {
+  document.body.addEventListener("click", (e) => {
+    const opener = e.target.closest("[data-popup]");
+    if (opener) {
+      e.preventDefault();
+      const overlay = document.getElementById(`popup-${opener.dataset.popup}`);
+      if (overlay) overlay.classList.add("open");
+      return;
+    }
+    const closer = e.target.closest("[data-close-popup]");
+    if (closer) {
+      closer.closest(".popup-overlay").classList.remove("open");
+      return;
+    }
+    if (e.target.classList.contains("popup-overlay")) {
+      e.target.classList.remove("open");
+    }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      document.querySelectorAll(".popup-overlay.open").forEach(o => o.classList.remove("open"));
+    }
+  });
+}
+
+/**
+ * Единый обработчик отправки для всех коротких форм заявок на сайте -
+ * попапы, полоса "Не нашли нужный гаджет?", блок "Обратная связь" и т.п.
+ * Форма помечается атрибутом data-quick-form и data-form-type="Название заявки".
+ * Внутри формы: input[name], textarea[name], кнопка submit и .form-status для статуса.
+ */
+function initQuickForms() {
+  document.querySelectorAll("form[data-quick-form]").forEach(form => {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const statusEl = form.querySelector(".form-status");
+      const submitBtn = form.querySelector("button[type=submit]");
+      if (submitBtn) submitBtn.disabled = true;
+      if (statusEl) { statusEl.textContent = ""; statusEl.className = "form-status"; }
+
+      const payload = { form_type: form.dataset.formType || "Заявка с сайта" };
+      form.querySelectorAll("input[name], textarea[name]").forEach(field => {
+        if (field.type === "checkbox") return;
+        const label = (field.placeholder || field.name).replace(/\*$/, "").trim();
+        payload[label] = field.value;
+      });
+
+      try {
+        const res = await fetch(NOTIFY_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          if (statusEl) {
+            statusEl.textContent = "Спасибо! Заявка принята, свяжемся с вами в ближайшее время.";
+            statusEl.classList.add("ok");
+          }
+          form.reset();
+        } else {
+          throw new Error("delivery failed");
+        }
+      } catch (err) {
+        if (statusEl) {
+          statusEl.textContent = "Не получилось отправить, попробуйте ещё раз или напишите нам в Telegram.";
+          statusEl.classList.add("err");
+        }
+        console.error(err);
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  });
 }
 
 async function initMegaMenu() {
