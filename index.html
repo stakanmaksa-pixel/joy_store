@@ -152,6 +152,13 @@ function fmtPrice(n){
   return new Intl.NumberFormat("ru-RU").format(n) + " ₽";
 }
 
+// Сердечко "в избранное" для карточек товара - данные передаются через data-атрибут,
+// обработка клика (и синхронизация состояния) - в js/cart.js
+function favHeartHTML(item){
+  const safe = JSON.stringify(item).replace(/'/g, "&#39;");
+  return `<button type="button" class="card-fav" data-fav-toggle='${safe}' title="В избранное"></button>`;
+}
+
 function hasAnyPriceData(node){
   if (typeof node === "number") return true;
   if (typeof node !== "object" || node === null) return false;
@@ -313,7 +320,10 @@ function productCardHTML(product, href){
 
   return `
     <a class="product-card" href="${href}">
-      <div class="card-photo">${photoHTML}</div>
+      <div class="card-photo">
+        ${photoHTML}
+        ${favHeartHTML({ id: `product|${href}`, name: product.name, subtitle: "", price: startPrice, href })}
+      </div>
       <div class="card-body">
         <div class="card-name">${product.name}</div>
         ${priceHTML}
@@ -357,6 +367,7 @@ function renderListing(products, hrefBuilder){
     document.getElementById("listingGrid").innerHTML = filtered.length
       ? `<div class="grid">${filtered.map(p => productCardHTML(p, hrefBuilder(p.name))).join("")}</div>`
       : `<div class="state">Ничего не найдено по выбранным фильтрам.</div>`;
+    window.iJoySyncFavHearts && window.iJoySyncFavHearts();
   }
 
   const hasVariants = facets.memories.length > 0 || facets.colors.length > 0;
@@ -555,12 +566,22 @@ function renderProduct(data, cat, sub, model){
     return `<button type="button" class="buy" style="${extraStyle}" data-popup="question">Уточнить цену у менеджера</button>`;
   }
 
+  // Кнопка "В корзину" - показываем только когда есть числовая цена (без цены и добавлять нечего)
+  function cartAddButtonHTML(item){
+    if (typeof item.price !== "number") return "";
+    const safe = JSON.stringify(item).replace(/'/g, "&#39;");
+    return `<button type="button" class="cart-add-btn" data-cart-add='${safe}'>В корзину</button>`;
+  }
+
+  const modelPageHref = `?cat=${encodeURIComponent(cat)}${sub ? `&sub=${encodeURIComponent(sub)}` : ""}&model=${encodeURIComponent(model)}`;
+
   // Простой товар без вариантов - одна цена, без сетки
   if (rows.length === 1 && !rows[0].memory && !rows[0].color){
     document.getElementById("app").innerHTML = `
       <div class="price-block" style="border-top:none; padding-top:0;">
         <div class="price">${fmtPrice(rows[0].price)}</div>
         ${buyButtonHTML(rows[0].price, model, "display:inline-block; text-decoration:none;")}
+        ${cartAddButtonHTML({ id: `simple|${modelPageHref}`, name: model, subtitle: "", price: rows[0].price, href: modelPageHref })}
       </div>`;
     return;
   }
@@ -587,12 +608,16 @@ function renderProduct(data, cat, sub, model){
   }
 
   function variantCardHTML(row, idx){
-    const { subtitleParts } = variantDesc(row);
+    const { subtitleParts, itemDesc } = variantDesc(row);
     const hex = COLOR_HEX[row.color] || { a: "#4f7cff", b: "#152036" };
     const priceClass = typeof row.price === "number" ? "card-price" : "card-price muted";
+    const cardHref = `${listHref}&v=${idx}`;
     return `
-      <a class="product-card" href="${listHref}&v=${idx}">
-        <div class="card-photo"><div class="card-visual" style="--v-a:${hex.a};--v-b:${hex.b};"></div></div>
+      <a class="product-card" href="${cardHref}">
+        <div class="card-photo">
+          <div class="card-visual" style="--v-a:${hex.a};--v-b:${hex.b};"></div>
+          ${favHeartHTML({ id: `variant|${cardHref}`, name: model, subtitle: subtitleParts.join(" · "), price: row.price, href: cardHref })}
+        </div>
         <div class="card-body">
           <div class="card-name">${model}</div>
           <div class="card-sub">${subtitleParts.join(" · ")}</div>
@@ -672,6 +697,7 @@ function renderProduct(data, cat, sub, model){
             <div class="price-block">
               <div class="price">${fmtPrice(row.price)}</div>
               <a class="buy" style="display:block; text-align:center; text-decoration:none; box-sizing:border-box; line-height:1.2; padding-top:16px;" href="order.html?item=${encodeURIComponent(itemDesc)}">Купить за ${fmtPrice(row.price)}</a>
+              ${cartAddButtonHTML({ id: `variant|${listHref}&v=${idx}`, name: model, subtitle: subtitleParts.join(" · "), price: row.price, href: `${listHref}&v=${idx}` })}
             </div>
           </div>
         </div>
@@ -684,6 +710,7 @@ function renderProduct(data, cat, sub, model){
         const buyLink = priceBlock && priceBlock.querySelector(".buy");
         if (buyLink) buyLink.outerHTML = buyButtonHTML(row.price, itemDesc, "display:block; text-align:center; box-sizing:border-box; line-height:1.2; padding-top:16px;");
       }
+      window.iJoySyncFavHearts && window.iJoySyncFavHearts();
 
       document.querySelectorAll("#memOpts .opt").forEach(el => {
         el.addEventListener("click", () => { sel.memory = el.dataset.mem; renderSelector(); });
@@ -707,6 +734,7 @@ function renderProduct(data, cat, sub, model){
         <span class="listing-count">${rows.length} товаров</span>
       </div>
       <div class="grid">${rows.map(variantCardHTML).join("")}</div>`;
+    window.iJoySyncFavHearts && window.iJoySyncFavHearts();
     return;
   }
 
@@ -730,6 +758,7 @@ function renderProduct(data, cat, sub, model){
     document.getElementById("listingGrid").innerHTML = filtered.length
       ? `<div class="grid">${filtered.map(({ r, idx }) => variantCardHTML(r, idx)).join("")}</div>`
       : `<div class="state">Ничего не найдено по выбранным фильтрам.</div>`;
+    window.iJoySyncFavHearts && window.iJoySyncFavHearts();
   }
 
   document.getElementById("app").innerHTML = `
@@ -801,6 +830,7 @@ fetch("data/catalog.json", { cache: "no-store" })
   });
 </script>
 <div id="site-footer"></div>
+<script src="js/cart.js"></script>
 <script src="js/layout.js"></script>
 </body>
 </html>

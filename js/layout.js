@@ -55,11 +55,8 @@ async function initLayout() {
     burger.addEventListener("click", () => nav.classList.toggle("open"));
   }
 
-  // Заглушки для корзины/избранного - подключим в следующей фазе
-  const cartBtn = document.getElementById("cartBtn");
-  const favBtn = document.getElementById("favoritesBtn");
-  if (cartBtn) cartBtn.addEventListener("click", () => alert("Корзина скоро будет здесь"));
-  if (favBtn) favBtn.addEventListener("click", () => alert("Избранное скоро будет здесь"));
+  // Корзина и избранное подключены отдельным модулем - см. js/cart.js
+  // (обработка кликов по #cartBtn/#favoritesBtn там, через делегирование на body).
 
   initPopups();
   initQuickForms();

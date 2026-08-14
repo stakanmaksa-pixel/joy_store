@@ -608,3 +608,43 @@ a{ color: inherit; }
 .popup-box .consent-note a{ color: var(--accent); }
 .popup-box .form-status.ok{ color:#1a9c4b; }
 .popup-box .form-status.err{ color:#d3372f; }
+
+/* ---------- Корзина / Избранное ---------- */
+.card-fav{
+  position:absolute; top:12px; right:12px; width:34px; height:34px; border-radius:50%;
+  background:#fff; border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
+  color: var(--accent); font-size:16px; cursor:pointer; z-index:2; padding:0;
+}
+.card-fav:hover{ border-color: var(--accent); }
+.card-fav.active{ background: var(--accent); color:#fff; border-color: var(--accent); }
+.card-fav.active::before{ content:"♥"; }
+.card-fav:not(.active)::before{ content:"♡"; }
+
+.cart-add-btn{
+  margin-top: 10px; width: 100%; padding: 15px; border-radius: 30px; border: 1.5px solid var(--accent);
+  background: #fff; color: var(--accent); font-size: 14px; font-weight: 700; cursor: pointer;
+  text-transform: uppercase; letter-spacing:.03em; font-family: var(--font-body);
+}
+.cart-add-btn:hover{ background: var(--accent-soft); }
+
+.cart-list{ display:flex; flex-direction:column; gap:14px; max-height:50vh; overflow-y:auto; }
+.cart-row{
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+  border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px;
+}
+.cart-row-info{ flex:1; min-width:0; }
+.cart-row-name{ font-weight:700; font-size:14px; }
+.cart-row-sub{ font-size:12px; color:var(--muted); margin-top:2px; }
+.cart-row-price{ font-size:14px; font-weight:700; color:var(--accent); margin-top:4px; }
+.cart-row-actions{ display:flex; flex-direction:column; align-items:flex-end; gap:8px; flex-shrink:0; }
+.qty-control{ display:flex; align-items:center; gap:8px; }
+.qty-control button{
+  width:26px; height:26px; border-radius:50%; border:1px solid var(--line); background:#fff;
+  cursor:pointer; font-size:15px; line-height:1; color:var(--text);
+}
+.qty-control button:hover{ border-color: var(--accent); color: var(--accent); }
+.qty-control span{ min-width:16px; text-align:center; font-size:13px; font-weight:700; }
+.cart-remove{ border:none; background:none; color: var(--muted); font-size:12px; cursor:pointer; text-decoration:underline; padding:0; }
+.cart-remove:hover{ color:#d3372f; }
+.cart-total{ margin-top:16px; padding-top:14px; border-top:1px solid var(--line); font-size:16px; text-align:right; }
+.cart-total strong{ color: var(--accent); }
