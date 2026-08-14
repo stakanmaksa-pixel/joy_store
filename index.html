@@ -140,10 +140,17 @@ const COLOR_HEX = {
 const REGION_LABEL = {
   JP: "Япония 🇯🇵", HK: "Гонконг 🇭🇰", US: "США 🇺🇸", AE: "ОАЭ 🇦🇪",
   CN: "Китай 🇨🇳", RU: "Россия 🇷🇺", EU: "Евросоюз 🇪🇺", KR: "Корея 🇰🇷", UK: "Великобритания 🇬🇧",
+  IN: "Индия 🇮🇳", AE_EU: "ОАЭ / Евросоюз 🇦🇪🇪🇺",
+  CN_ESIM: "Китай · только eSIM 🇨🇳", CN_SIM_ESIM: "Китай · SIM + eSIM 🇨🇳", CN_SIM_SIM: "Китай · 2 SIM (без eSIM) 🇨🇳",
+  KZ: "Казахстан 🇰🇿", MY: "Малайзия 🇲🇾", ID: "Индонезия 🇮🇩", PA: "Панама 🇵🇦",
+  CL: "Чили 🇨🇱", SG: "Сингапур 🇸🇬", TH: "Таиланд 🇹🇭",
   ESIM: "Только eSIM", SIM_ESIM: "SIM + eSIM",
 };
 
-function fmtPrice(n){ return new Intl.NumberFormat("ru-RU").format(n) + " ₽"; }
+function fmtPrice(n){
+  if (typeof n !== "number") return n; // текстовая заглушка вроде "Уточняйте у менеджера" - выводим как есть
+  return new Intl.NumberFormat("ru-RU").format(n) + " ₽";
+}
 
 function hasAnyPriceData(node){
   if (typeof node === "number") return true;
@@ -485,10 +492,14 @@ function getProduct(data, cat, sub, model){
   return products.find(p => p.name === model) || null;
 }
 
-// Раскладывает вложенную структуру цен товара в плоский список строк для таблицы
+// Раскладывает вложенную структуру цен товара в плоский список строк для таблицы.
+// Цена может быть числом или текстовой заглушкой вроде "Уточняйте у менеджера" - обе формы допустимы.
+function isDisplayablePrice(price){
+  return typeof price === "number" || (typeof price === "string" && price.trim() !== "");
+}
 function flattenVariants(product){
   const rows = [];
-  if (typeof product.price === "number"){
+  if (isDisplayablePrice(product.price)){
     rows.push({ price: product.price });
     return rows;
   }
@@ -497,14 +508,14 @@ function flattenVariants(product){
     Object.entries(product.prices).forEach(([memory, colorMap]) => {
       Object.entries(colorMap).forEach(([color, thirdMap]) => {
         Object.entries(thirdMap).forEach(([third, price]) => {
-          if (typeof price === "number") rows.push({ memory, color, third, price });
+          if (isDisplayablePrice(price)) rows.push({ memory, color, third, price });
         });
       });
     });
   } else {
     Object.entries(product.prices).forEach(([color, thirdMap]) => {
       Object.entries(thirdMap).forEach(([third, price]) => {
-        if (typeof price === "number") rows.push({ color, third, price });
+        if (isDisplayablePrice(price)) rows.push({ color, third, price });
       });
     });
   }
@@ -535,12 +546,21 @@ function renderProduct(data, cat, sub, model){
     return;
   }
 
+  function buyButtonHTML(price, itemDesc, extraStyle){
+    if (typeof price === "number"){
+      return `<a class="buy" style="${extraStyle}" href="order.html?item=${encodeURIComponent(itemDesc)}">Купить за ${fmtPrice(price)}</a>`;
+    }
+    // Цена ещё не назначена (текстовая заглушка вроде "Уточняйте у менеджера") -
+    // вместо оформления заказа с пустой ценой открываем попап "Задать вопрос".
+    return `<button type="button" class="buy" style="${extraStyle}" data-popup="question">Уточнить цену у менеджера</button>`;
+  }
+
   // Простой товар без вариантов - одна цена, без сетки
   if (rows.length === 1 && !rows[0].memory && !rows[0].color){
     document.getElementById("app").innerHTML = `
       <div class="price-block" style="border-top:none; padding-top:0;">
         <div class="price">${fmtPrice(rows[0].price)}</div>
-        <a class="buy" style="display:inline-block; text-decoration:none;" href="order.html?item=${encodeURIComponent(model)}">Купить за ${fmtPrice(rows[0].price)}</a>
+        ${buyButtonHTML(rows[0].price, model, "display:inline-block; text-decoration:none;")}
       </div>`;
     return;
   }
@@ -569,13 +589,14 @@ function renderProduct(data, cat, sub, model){
   function variantCardHTML(row, idx){
     const { subtitleParts } = variantDesc(row);
     const hex = COLOR_HEX[row.color] || { a: "#4f7cff", b: "#152036" };
+    const priceClass = typeof row.price === "number" ? "card-price" : "card-price muted";
     return `
       <a class="product-card" href="${listHref}&v=${idx}">
         <div class="card-photo"><div class="card-visual" style="--v-a:${hex.a};--v-b:${hex.b};"></div></div>
         <div class="card-body">
           <div class="card-name">${model}</div>
           <div class="card-sub">${subtitleParts.join(" · ")}</div>
-          <div class="card-price">${fmtPrice(row.price)}</div>
+          <div class="${priceClass}">${fmtPrice(row.price)}</div>
         </div>
       </a>`;
   }
@@ -657,6 +678,12 @@ function renderProduct(data, cat, sub, model){
         <div style="margin-top:24px;">
           <a href="${listHref}" style="color:var(--muted); font-size:13px; text-decoration:none;">← Назад к списку вариантов</a>
         </div>`;
+      // Кнопку "Купить" подменяем на "Уточнить цену у менеджера", если для этой комбинации нет числовой цены
+      if (typeof row.price !== "number"){
+        const priceBlock = document.querySelector("#app .price-block");
+        const buyLink = priceBlock && priceBlock.querySelector(".buy");
+        if (buyLink) buyLink.outerHTML = buyButtonHTML(row.price, itemDesc, "display:block; text-align:center; box-sizing:border-box; line-height:1.2; padding-top:16px;");
+      }
 
       document.querySelectorAll("#memOpts .opt").forEach(el => {
         el.addEventListener("click", () => { sel.memory = el.dataset.mem; renderSelector(); });

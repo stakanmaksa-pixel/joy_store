@@ -243,34 +243,320 @@
             }
           },
           {
-            "name": "16 Pro Max"
+            "name": "16 Pro Max",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "256GB": {
+                "Natural": {
+                  "US": 94000,
+                  "IN": 98200
+                },
+                "White": {
+                  "US": 94500
+                },
+                "Desert": {
+                  "IN": 94000
+                }
+              },
+              "512GB": {
+                "Black": {
+                  "US": 105300,
+                  "IN": 116000
+                },
+                "Desert": {
+                  "US": 105000,
+                  "IN": 114200
+                },
+                "Natural": {
+                  "US": 104900
+                },
+                "White": {
+                  "US": 105200,
+                  "IN": 116000
+                },
+                "White (2 SIM)": {
+                  "HK": 115300
+                }
+              },
+              "1TB": {
+                "Black": {
+                  "IN": 121000
+                },
+                "Desert": {
+                  "IN": 120700
+                },
+                "Natural": {
+                  "IN": 120700
+                },
+                "White": {
+                  "IN": 122500
+                }
+              }
+            }
           },
           {
-            "name": "16 Pro"
+            "name": "16 Pro",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "128GB": {
+                "Black": {
+                  "CN_ESIM": "Уточняйте у менеджера",
+                  "CN_SIM_ESIM": "Уточняйте у менеджера",
+                  "CN_SIM_SIM": 85000
+                },
+                "Desert": {
+                  "CN_ESIM": "Уточняйте у менеджера",
+                  "CN_SIM_ESIM": "Уточняйте у менеджера",
+                  "CN_SIM_SIM": 84200
+                },
+                "Natural": {
+                  "CN_ESIM": "Уточняйте у менеджера",
+                  "CN_SIM_ESIM": "Уточняйте у менеджера",
+                  "CN_SIM_SIM": 83200
+                },
+                "White": {
+                  "CN_ESIM": "Уточняйте у менеджера",
+                  "CN_SIM_ESIM": "Уточняйте у менеджера",
+                  "CN_SIM_SIM": 78000
+                }
+              },
+              "512GB": {
+                "Desert": {
+                  "IN": 118000
+                }
+              },
+              "1TB": {
+                "White": {
+                  "AE": 116000
+                }
+              }
+            }
           },
           {
-            "name": "16 Plus"
+            "name": "16 Plus",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "128GB": {
+                "Black": {
+                  "IN": 65000
+                },
+                "Pink": {
+                  "IN": 66300
+                },
+                "Teal": {
+                  "IN": 66300
+                },
+                "Ultramarine": {
+                  "IN": 66300
+                },
+                "White": {
+                  "IN": 65000
+                }
+              },
+              "256GB": {
+                "Black": {
+                  "IN": 77000
+                },
+                "Pink": {
+                  "IN": 75500
+                },
+                "Teal": {
+                  "IN": 75200
+                },
+                "White": {
+                  "IN": 77200
+                },
+                "Ultramarine": {
+                  "IN": 76000
+                }
+              },
+              "512GB": {
+                "Black": {
+                  "US": 74600,
+                  "IN": 89500
+                },
+                "Pink": {
+                  "US": 75700,
+                  "IN": 90000
+                },
+                "Teal": {
+                  "JP": 90000
+                },
+                "Ultramarine": {
+                  "JP": 90000
+                },
+                "White": {
+                  "JP": 90000
+                }
+              }
+            }
           },
           {
-            "name": "16"
+            "name": "16",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "128GB": {
+                "Black": {
+                  "US": 57200,
+                  "IN": 59700
+                },
+                "Ultramarine": {
+                  "US": 57800,
+                  "IN": 61500
+                },
+                "Pink": {
+                  "IN": 62500
+                },
+                "White": {
+                  "IN": 62500
+                },
+                "Teal": {
+                  "IN": 60400
+                }
+              },
+              "256GB": {
+                "Black": {
+                  "IN": 67800
+                },
+                "Pink": {
+                  "IN": 67800
+                },
+                "Teal": {
+                  "IN": 67700
+                },
+                "White": {
+                  "IN": 69000
+                }
+              },
+              "512GB": {
+                "Pink": {
+                  "IN": 83000
+                },
+                "Teal": {
+                  "IN": 81000
+                },
+                "Ultramarine": {
+                  "IN": 80000
+                }
+              }
+            }
           },
           {
-            "name": "16e"
+            "name": "16e",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "128GB": {
+                "Black": {
+                  "US": 43600
+                }
+              },
+              "256GB": {
+                "White": {
+                  "CN_ESIM": "Уточняйте у менеджера",
+                  "CN_SIM_ESIM": 45800,
+                  "CN_SIM_SIM": "Уточняйте у менеджера"
+                }
+              }
+            }
           },
           {
-            "name": "15 Pro Max"
+            "name": "15 Pro Max",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "256GB": {
+                "White": {
+                  "CN_ESIM": "Уточняйте у менеджера",
+                  "CN_SIM_ESIM": "Уточняйте у менеджера",
+                  "CN_SIM_SIM": 85000
+                }
+              }
+            }
           },
           {
-            "name": "15 Pro"
-          },
-          {
-            "name": "15/15 Plus"
+            "name": "15 Pro",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "128GB": {
+                "Blue": {
+                  "AE_EU": 75400
+                },
+                "Natural": {
+                  "AE_EU": 70500
+                }
+              },
+              "512GB": {
+                "Blue": {
+                  "AE_EU": 93500
+                }
+              },
+              "1TB": {
+                "Natural": {
+                  "AE_EU": 100500
+                }
+              }
+            }
           },
           {
             "name": "14/14 Plus"
           },
           {
             "name": "13"
+          },
+          {
+            "name": "15",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "128GB": {
+                "Black": {
+                  "IN": 52000
+                },
+                "Blue": {
+                  "IN": 51200
+                }
+              },
+              "256GB": {
+                "Black": {
+                  "IN": 59700
+                },
+                "Blue": {
+                  "IN": 61500
+                }
+              }
+            }
+          },
+          {
+            "name": "15 Plus",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "128GB": {
+                "Pink": {
+                  "IN": 55000
+                }
+              },
+              "512GB": {
+                "Blue": {
+                  "IN": 65500
+                },
+                "Green": {
+                  "IN": 60700
+                },
+                "Pink": {
+                  "IN": 66000
+                },
+                "Yellow": {
+                  "AE_EU": 65000
+                }
+              }
+            }
           }
         ]
       },
@@ -350,34 +636,410 @@
   },
   "samsung": {
     "name": "Samsung",
-    "products": [
-      {
-        "name": "Galaxy S25 Ultra",
-        "hasMemory": true,
-        "prices": {
-          "256GB": {
-            "Black": {
-              "JP": 89000,
-              "HK": 95000
-            },
-            "Grey": {
-              "JP": 89500,
-              "HK": 95500
+    "subcategories": {
+      "galaxy-a": {
+        "name": "Galaxy A",
+        "products": [
+          {
+            "name": "A16",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "8/256GB": {
+                "Black": {
+                  "AE": 16000,
+                  "EU": 16000
+                }
+              }
             }
           },
-          "512GB": {
-            "Black": {
-              "JP": 99000,
-              "HK": 106000
-            },
-            "Grey": {
-              "JP": 99500,
-              "HK": 106500
+          {
+            "name": "A17 4G",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "4/128GB": {
+                "Black": {
+                  "AE": 12500
+                },
+                "Blue": {
+                  "RU": 12500
+                },
+                "Gray": {
+                  "RU": 12500
+                }
+              },
+              "6/128GB": {
+                "Black": {
+                  "RU": 13800
+                },
+                "Blue": {
+                  "RU": 13800
+                },
+                "Gray": {
+                  "RU": 13800
+                }
+              },
+              "8/256GB": {
+                "Голубой": {
+                  "RU": 17700
+                }
+              }
+            }
+          },
+          {
+            "name": "A27 5G",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "6/128GB": {
+                "Black": {
+                  "RU": 21000
+                },
+                "Blue": {
+                  "RU": 21000
+                },
+                "Light Pink": {
+                  "RU": 21000
+                }
+              },
+              "8/256GB": {
+                "Light Pink": {
+                  "KZ": 23100,
+                  "MY": 23000
+                }
+              }
+            }
+          },
+          {
+            "name": "A37 5G",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "8/128GB": {
+                "Green": {
+                  "RU": 22900
+                },
+                "Lavander": {
+                  "RU": 22900
+                },
+                "White": {
+                  "RU": 22900
+                }
+              },
+              "8/256GB": {
+                "A.Greygreen": {
+                  "RU": 26000
+                },
+                "A.White": {
+                  "RU": 26000
+                },
+                "Black": {
+                  "RU": 26000
+                }
+              },
+              "12/256GB": {
+                "A.Greygreen": {
+                  "MY": 27000
+                }
+              }
+            }
+          },
+          {
+            "name": "A56 5G",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "8/128GB": {
+                "A.Lightgray": {
+                  "AE": 25500
+                }
+              }
+            }
+          },
+          {
+            "name": "A57 5G",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "8/128GB": {
+                "A.Gray": {
+                  "AE": 26900
+                },
+                "A.Icyblue": {
+                  "RU": 27000
+                },
+                "A.Lilac": {
+                  "AE": 26900
+                },
+                "Navi": {
+                  "RU": 27000,
+                  "KZ": 26800
+                }
+              },
+              "8/256GB": {
+                "A.Gray": {
+                  "AE": 32200,
+                  "RU": 32500,
+                  "KZ": 32300
+                },
+                "A.Lilac": {
+                  "AE": 32200,
+                  "RU": 32500
+                },
+                "A.Navy": {
+                  "AE": 32200,
+                  "RU": 32500
+                }
+              },
+              "12/256GB": {
+                "A.Gray": {
+                  "ID": 35500
+                },
+                "A.Icyblue": {
+                  "ID": 35500
+                },
+                "A.Navy": {
+                  "AE": 35500,
+                  "MY": 35400
+                }
+              },
+              "12/512GB": {
+                "A.Gray": {
+                  "MY": 39500
+                },
+                "A.Icyblue": {
+                  "MY": 39500
+                },
+                "A.Navy": {
+                  "MY": 39500
+                }
+              }
             }
           }
-        }
+        ]
+      },
+      "galaxy-m": {
+        "name": "Galaxy M",
+        "products": [
+          {
+            "name": "M56 5G",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "8/256GB": {
+                "Black": {
+                  "IN": 25500
+                },
+                "LightGreen": {
+                  "IN": 25500
+                }
+              }
+            }
+          }
+        ]
+      },
+      "galaxy-s": {
+        "name": "Galaxy S",
+        "products": [
+          {
+            "name": "S23+",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "8/512GB": {
+                "Black (SM-S916B)": {
+                  "AE": 42000
+                },
+                "Green (SM-S916B)": {
+                  "AE": 42000
+                }
+              }
+            }
+          },
+          {
+            "name": "S25",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "12/128GB": {
+                "Icyblue (SM-S931B)": {
+                  "IN": 42000
+                }
+              },
+              "12/256GB": {
+                "Icyblue (SM-S931B)": {
+                  "IN": 47000
+                },
+                "Mint (SM-S931B)": {
+                  "AE": 47500,
+                  "PA": 47500
+                },
+                "Navy (SM-S931B)": {
+                  "IN": 47200
+                },
+                "Silver Shadow (SM-S931B)": {
+                  "IN": 47800
+                }
+              }
+            }
+          },
+          {
+            "name": "S25 FE 5G",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "8/128GB": {
+                "White (SM-S731B)": {
+                  "IN": 38000
+                }
+              },
+              "8/256GB": {
+                "JetBlack (SM-S731B)": {
+                  "IN": 43500
+                },
+                "Navy (SM-S731B)": {
+                  "IN": 43500
+                }
+              }
+            }
+          },
+          {
+            "name": "S25 Ultra",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "12/1TB": {
+                "Titanium Gray (SM-S938B)": {
+                  "PA": 78000
+                }
+              },
+              "12/256GB": {
+                "Titanium Black (SM-S938B)": {
+                  "CL": 62500,
+                  "IN": 62500
+                },
+                "Titanium Silverblue (SM-S938B)": {
+                  "IN": 62500,
+                  "MY": 62500
+                },
+                "Titanium Whitesilver (SM-S938B)": {
+                  "IN": 62500
+                }
+              },
+              "12/512GB": {
+                "Titanium Black (SM-S938B)": {
+                  "CL": 72500,
+                  "PA": 72500
+                },
+                "Titanium Silverblue (SM-S938B)": {
+                  "MY": 72500,
+                  "PA": 72500
+                },
+                "Titanium Whitesilver (SM-S938B)": {
+                  "MY": 73000
+                }
+              }
+            }
+          },
+          {
+            "name": "S26",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "12/256GB": {
+                "Cobalt Violet (SM-S9420)": {
+                  "CN": 55000
+                },
+                "Sky Blue (SM-S9420)": {
+                  "CN": 55000
+                },
+                "Silver Shadow (SM-S942B)": {
+                  "IN": 55500
+                },
+                "Sky Blue (SM-S942B)": {
+                  "CL": 54000
+                }
+              },
+              "12/512GB": {
+                "Black (SM-S942B)": {
+                  "EU": 64000
+                },
+                "Cobalt Violet (SM-S942B)": {
+                  "CL": 64200
+                },
+                "Sky Blue (SM-S942B)": {
+                  "EU": 64200
+                },
+                "White (SM-S942B)": {
+                  "EU": 65300
+                }
+              }
+            }
+          },
+          {
+            "name": "S26+",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "12/256GB": {
+                "Blue (SM-S947B)": {
+                  "MY": 62900
+                },
+                "Белый (SM-S947B)": {
+                  "RU": 68500
+                }
+              },
+              "12/512GB": {
+                "Sky Blue (SM-S947B)": {
+                  "KZ": 72000
+                }
+              }
+            }
+          },
+          {
+            "name": "S26 Ultra",
+            "hasMemory": true,
+            "regionLabel": "Регион",
+            "prices": {
+              "16/1TB": {
+                "Black (SM-S948B)": {
+                  "EU": 108000,
+                  "ID": 107900,
+                  "TH": 107800
+                }
+              },
+              "12/256GB": {
+                "Cobalt Violet (SM-S948B)": {
+                  "SG": 73000
+                }
+              },
+              "12/512GB": {
+                "Black (SM-S948B)": {
+                  "EU": 88500,
+                  "MY": 88300
+                },
+                "Cobalt Violet (SM-S948B)": {
+                  "ID": 88500
+                },
+                "Белый (SM-S948B)": {
+                  "RU": 89500
+                },
+                "Голубой (SM-S948B)": {
+                  "RU": 88500
+                },
+                "Фиолетовый (SM-S948B)": {
+                  "RU": 89000
+                },
+                "Черный (SM-S948B)": {
+                  "RU": 89000
+                }
+              }
+            }
+          }
+        ]
       }
-    ]
+    }
   },
   "xiaomi": {
     "name": "Xiaomi",
