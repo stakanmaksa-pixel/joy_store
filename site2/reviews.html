@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Отзывы — iJoy</title>
+<link rel="stylesheet" href="css/theme.css">
+</head>
+<body data-page="reviews">
+  <div id="site-header"></div>
+
+  <div class="content-wrap">
+    <h1>Отзывы</h1>
+
+    <div class="info-card" style="margin-bottom:24px;">
+      <h3>⭐ 5.0 · 68 оценок на Яндекс Картах</h3>
+      <p><a href="https://yandex.ru/maps/org/ijoy/61082823448/reviews/" style="color:inherit;" target="_blank">Смотреть все 64 отзыва на Яндекс Картах →</a></p>
+    </div>
+
+    <div id="reviewsList">
+      <p class="state">Загружаем отзывы…</p>
+    </div>
+
+    <div class="review-form">
+      <h2 style="margin-top:0;">Оставить отзыв</h2>
+      <form id="reviewForm">
+        <label>Имя</label>
+        <input type="text" name="name" required>
+
+        <label>Оценка</label>
+        <div class="star-picker" id="starPicker">
+          <span data-val="1">★</span>
+          <span data-val="2">★</span>
+          <span data-val="3">★</span>
+          <span data-val="4">★</span>
+          <span data-val="5">★</span>
+        </div>
+
+        <label>Текст отзыва</label>
+        <textarea name="text" required></textarea>
+
+        <button type="submit" id="reviewSubmitBtn">Отправить отзыв</button>
+        <div class="form-status" id="reviewStatus"></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="site-footer"></div>
+  <script src="js/layout.js"></script>
+  <script>
+    // Замени на реальный адрес после деплоя form-notify на Timeweb
+    const NOTIFY_ENDPOINT = "https://stakanmaksa-pixel-form-notify-9363.twc1.net/submit";
+
+    function renderStars(n) {
+      const full = "★".repeat(n);
+      const empty = "☆".repeat(5 - n);
+      return full + empty;
+    }
+
+    fetch("data/reviews.json", { cache: "no-store" })
+      .then(r => r.json())
+      .then(reviews => {
+        const list = document.getElementById("reviewsList");
+        if (!reviews.length) {
+          list.innerHTML = "<p class='state'>Отзывов пока нет — будьте первым!</p>";
+          return;
+        }
+        list.innerHTML = reviews.map(r => `
+          <div class="review-card">
+            <div class="review-head">
+              <span class="review-name">${r.name}</span>
+              <span class="review-date">${r.date || ""}</span>
+            </div>
+            ${r.rating ? `<div class="review-stars">${renderStars(r.rating)}</div>` : ""}
+            <p class="review-text">${r.text}</p>
+          </div>
+        `).join("");
+      })
+      .catch(() => {
+        document.getElementById("reviewsList").innerHTML =
+          "<p class='state'>Не удалось загрузить отзывы.</p>";
+      });
+
+    // Выбор рейтинга звёздами
+    let selectedRating = 5;
+    const starEls = document.querySelectorAll("#starPicker span");
+    function paintStars(n) {
+      starEls.forEach(el => el.classList.toggle("active", Number(el.dataset.val) <= n));
+    }
+    paintStars(selectedRating);
+    starEls.forEach(el => {
+      el.addEventListener("click", () => {
+        selectedRating = Number(el.dataset.val);
+        paintStars(selectedRating);
+      });
+    });
+
+    // Отправка формы
+    const form = document.getElementById("reviewForm");
+    const statusEl = document.getElementById("reviewStatus");
+    const submitBtn = document.getElementById("reviewSubmitBtn");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      statusEl.textContent = "";
+      statusEl.className = "form-status";
+
+      const payload = {
+        form_type: "Отзыв",
+        "Имя": form.name.value,
+        "Оценка": selectedRating,
+        "Текст": form.text.value,
+      };
+
+      try {
+        const res = await fetch(NOTIFY_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          statusEl.textContent = "Спасибо! Отзыв отправлен на модерацию.";
+          statusEl.classList.add("ok");
+          form.reset();
+          selectedRating = 5;
+          paintStars(selectedRating);
+        } else {
+          throw new Error("delivery failed");
+        }
+      } catch (err) {
+        statusEl.textContent = "Не получилось отправить, попробуйте ещё раз.";
+        statusEl.classList.add("err");
+        console.error(err);
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
