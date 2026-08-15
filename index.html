@@ -154,9 +154,17 @@ function fmtPrice(n){
 
 // Сердечко "в избранное" для карточек товара - данные передаются через data-атрибут,
 // обработка клика (и синхронизация состояния) - в js/cart.js
+const HEART_SVG = `<svg class="heart-icon" viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.3C.6 8.6 2 5 5.5 5c2 0 3.3 1.1 4 2.2C10.2 6.1 11.5 5 13.5 5 17 5 18.4 8.6 17 11.7 15 16.4 12 21 12 21z"/></svg>`;
+
 function favHeartHTML(item){
   const safe = JSON.stringify(item).replace(/'/g, "&#39;");
-  return `<button type="button" class="card-fav" data-fav-toggle='${safe}' title="В избранное"></button>`;
+  return `<button type="button" class="card-fav" data-fav-toggle='${safe}' title="В избранное">${HEART_SVG}</button>`;
+}
+
+// Такая же кнопка избранного, но обычная (не поверх карточки) - для страницы товара
+function favInlineHTML(item){
+  const safe = JSON.stringify(item).replace(/'/g, "&#39;");
+  return `<button type="button" class="fav-btn-inline" data-fav-toggle='${safe}'>${HEART_SVG}<span>В избранное</span></button>`;
 }
 
 function hasAnyPriceData(node){
@@ -573,6 +581,38 @@ function renderProduct(data, cat, sub, model){
     return `<button type="button" class="cart-add-btn" data-cart-add='${safe}'>В корзину</button>`;
   }
 
+  // Блок "Описание" + "Характеристики" под карточкой товара - берётся из полей
+  // product.description (строка, абзацы можно разделять пустой строкой) и product.specs
+  // (объект вида {"Экран": "6.9\", OLED", "Процессор": "A19 Pro"}). Оба поля необязательные -
+  // если их нет в catalog.json у этого товара, блок просто не выводится.
+  function productDetailsHTML(product){
+    const hasDescription = typeof product.description === "string" && product.description.trim().length > 0;
+    const specsEntries = product.specs && typeof product.specs === "object" ? Object.entries(product.specs) : [];
+    if (!hasDescription && !specsEntries.length) return "";
+
+    const descriptionHTML = hasDescription
+      ? product.description.trim().split(/\n\s*\n/).map(p => `<p>${p.trim()}</p>`).join("")
+      : "";
+
+    return `
+      <div class="product-details">
+        ${hasDescription ? `
+        <div class="details-block">
+          <h3>Описание</h3>
+          <div class="details-description">${descriptionHTML}</div>
+        </div>` : ""}
+        ${specsEntries.length ? `
+        <div class="details-block">
+          <h3>Характеристики</h3>
+          <div class="specs-table">
+            ${specsEntries.map(([label, value]) => `
+              <div class="specs-row"><span class="specs-label">${label}</span><span class="specs-value">${value}</span></div>
+            `).join("")}
+          </div>
+        </div>` : ""}
+      </div>`;
+  }
+
   const modelPageHref = `?cat=${encodeURIComponent(cat)}${sub ? `&sub=${encodeURIComponent(sub)}` : ""}&model=${encodeURIComponent(model)}`;
 
   // Простой товар без вариантов - одна цена, без сетки
@@ -582,7 +622,8 @@ function renderProduct(data, cat, sub, model){
         <div class="price">${fmtPrice(rows[0].price)}</div>
         ${buyButtonHTML(rows[0].price, model, "display:inline-block; text-decoration:none;")}
         ${cartAddButtonHTML({ id: `simple|${modelPageHref}`, name: model, subtitle: "", price: rows[0].price, href: modelPageHref })}
-      </div>`;
+      </div>
+      ${productDetailsHTML(product)}`;
     return;
   }
 
@@ -668,7 +709,8 @@ function renderProduct(data, cat, sub, model){
           <div class="panel">
             <div>
               <div class="group-label">${subtitleParts.join(" · ")}</div>
-              <h2 style="margin:0; font-size:22px; font-weight:700;">${model}</h2>
+              <h2 style="margin:0 0 14px; font-size:22px; font-weight:700;">${model}</h2>
+              ${favInlineHTML({ id: `variant|${listHref}&v=${idx}`, name: model, subtitle: subtitleParts.join(" · "), price: row.price, href: `${listHref}&v=${idx}` })}
             </div>
             ${memOrder.length ? `
             <div>
@@ -701,6 +743,7 @@ function renderProduct(data, cat, sub, model){
             </div>
           </div>
         </div>
+        ${productDetailsHTML(product)}
         <div style="margin-top:24px;">
           <a href="${listHref}" style="color:var(--muted); font-size:13px; text-decoration:none;">← Назад к списку вариантов</a>
         </div>`;
@@ -727,14 +770,57 @@ function renderProduct(data, cat, sub, model){
     return;
   }
 
-  // Если фильтровать нечего (нет памяти/цвета/региона-вариантов у товара) - просто сетка без боковой панели
+  // Сортировка: применяется поверх текущего порядка/фильтров, не меняет исходный массив rows,
+  // чтобы номера вариантов (idx) в ссылках карточек оставались стабильными между сортировками.
+  const SORT_OPTIONS = [
+    { value: "default", label: "По умолчанию" },
+    { value: "price-asc", label: "Сначала дешевле" },
+    { value: "price-desc", label: "Сначала дороже" },
+  ];
+  function sortEntries(entries, sortValue){
+    if (sortValue === "price-asc" || sortValue === "price-desc"){
+      const dir = sortValue === "price-asc" ? 1 : -1;
+      // Товары без числовой цены ("уточняйте у менеджера") всегда уходят в конец списка,
+      // независимо от направления сортировки.
+      return [...entries].sort((a, b) => {
+        const pa = typeof a.r.price === "number" ? a.r.price : null;
+        const pb = typeof b.r.price === "number" ? b.r.price : null;
+        if (pa === null && pb === null) return 0;
+        if (pa === null) return 1;
+        if (pb === null) return -1;
+        return (pa - pb) * dir;
+      });
+    }
+    return entries;
+  }
+  function sortSelectHTML(current){
+    return `
+      <select class="sort-select" id="sortSelect" aria-label="Сортировка">
+        ${SORT_OPTIONS.map(o => `<option value="${o.value}"${o.value === current ? " selected" : ""}>${o.label}</option>`).join("")}
+      </select>`;
+  }
+
+  // Если фильтровать нечего (нет памяти/цвета/региона-вариантов у товара) - показываем сетку
+  // без боковой панели фильтров, но сортировка всё равно доступна.
   if (!memOrder.length && !colorOrder.length && !(showThirdLabel && thirdOrder.length)){
+    const sortState = { sort: "default" };
+    function renderSimpleGrid(){
+      const entries = rows.map((r, idx) => ({ r, idx }));
+      const sorted = sortEntries(entries, sortState.sort);
+      document.getElementById("simpleGrid").innerHTML = `<div class="grid">${sorted.map(({ r, idx }) => variantCardHTML(r, idx)).join("")}</div>`;
+      window.iJoySyncFavHearts && window.iJoySyncFavHearts();
+    }
     document.getElementById("app").innerHTML = `
       <div class="listing-toolbar">
         <span class="listing-count">${rows.length} товаров</span>
+        ${sortSelectHTML(sortState.sort)}
       </div>
-      <div class="grid">${rows.map(variantCardHTML).join("")}</div>`;
-    window.iJoySyncFavHearts && window.iJoySyncFavHearts();
+      <div id="simpleGrid"></div>`;
+    document.getElementById("sortSelect").addEventListener("change", (e) => {
+      sortState.sort = e.target.value;
+      renderSimpleGrid();
+    });
+    renderSimpleGrid();
     return;
   }
 
@@ -742,11 +828,12 @@ function renderProduct(data, cat, sub, model){
     memories: new Set(),
     colors: new Set(),
     thirds: new Set(),
+    sort: "default",
   };
 
   function applyFiltersAndRender(){
     // filter() ломает исходные индексы, поэтому сначала помечаем строки их индексом в rows, затем фильтруем
-    const filtered = rows
+    let filtered = rows
       .map((r, idx) => ({ r, idx }))
       .filter(({ r }) => {
         if (state.memories.size && !(r.memory && state.memories.has(r.memory))) return false;
@@ -754,6 +841,7 @@ function renderProduct(data, cat, sub, model){
         if (state.thirds.size && !(r.third && state.thirds.has(r.third))) return false;
         return true;
       });
+    filtered = sortEntries(filtered, state.sort);
     document.getElementById("listingCount").textContent = `${filtered.length} из ${rows.length}`;
     document.getElementById("listingGrid").innerHTML = filtered.length
       ? `<div class="grid">${filtered.map(({ r, idx }) => variantCardHTML(r, idx)).join("")}</div>`
@@ -789,6 +877,7 @@ function renderProduct(data, cat, sub, model){
       <div>
         <div class="listing-toolbar">
           <span class="listing-count" id="listingCount"></span>
+          ${sortSelectHTML(state.sort)}
         </div>
         <div id="listingGrid"></div>
       </div>
@@ -811,6 +900,10 @@ function renderProduct(data, cat, sub, model){
       el.checked ? state.thirds.add(el.value) : state.thirds.delete(el.value);
       applyFiltersAndRender();
     });
+  });
+  document.getElementById("sortSelect").addEventListener("change", (e) => {
+    state.sort = e.target.value;
+    applyFiltersAndRender();
   });
 
   applyFiltersAndRender();

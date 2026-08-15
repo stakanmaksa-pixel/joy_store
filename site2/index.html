@@ -6,121 +6,89 @@
 <title>Каталог</title>
 <link rel="stylesheet" href="css/theme.css">
 <style>
-  /* Стили каталога/товарных страниц (сетки, фильтры, карточки, кнопка "Купить" и т.п.)
-     теперь живут в css/theme.css - здесь только разметка, специфичная для этой страницы. */
-  .wrap{ max-width: 1160px; margin: 0 auto; padding: 48px 24px 96px; }
-  #catalogWrapSection.is-home{ background: var(--lavender); padding-bottom: 72px; }
-  #catalogWrapSection.is-home .cta-band{ margin-top: 8px; }
-  .crumbs{ font-size: 13px; color: var(--muted); margin-bottom: 20px; }
-  .crumbs a{ color: var(--muted); text-decoration: none; }
-  .crumbs a:hover{ color: var(--accent); }
-  .wrap h1{ font-family: var(--font-display); font-size: clamp(28px, 4.5vw, 42px); margin: 0 0 28px; font-weight: 800; letter-spacing: -0.01em; }
-  #homeCatalogHeading{
-    font-family: var(--font-display); font-weight: 800; text-align:center;
-    font-size: clamp(28px, 4vw, 40px); margin: 0 0 36px; color: var(--text);
+  .wrap{ max-width: 1040px; margin: 0 auto; padding: 40px 24px 96px; }
+  .crumbs{
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 20px;
   }
-  #homeCatalogHeading .accent{ color: var(--accent); }
+  .crumbs a{ color: var(--muted); text-decoration: none; }
+  .crumbs a:hover{ color: var(--accent-2); }
+  h1{ font-size: clamp(28px, 4.5vw, 42px); margin: 0 0 28px; font-weight: 700; letter-spacing: -0.02em; }
+
+  /* --- Плитки категорий / моделей --- */
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .tile{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 28px 20px;
+    text-decoration: none;
+    color: var(--text);
+    display:flex; flex-direction:column; gap:8px;
+    transition: border-color .15s, transform .15s;
+  }
+  .tile:hover{ border-color: var(--accent-2); transform: translateY(-2px); }
+  .tile .tile-name{ font-size: 18px; font-weight: 600; }
+  .tile .tile-sub{ font-size: 13px; color: var(--muted); }
+
+  /* --- Товарная страница --- */
+  .layout{ display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; }
+  @media (max-width: 800px){ .layout{ grid-template-columns: 1fr; } }
+  .stage{
+    background: radial-gradient(circle at 30% 20%, #1e2530, var(--panel) 70%);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    aspect-ratio: 1 / 1;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .stage .visual{
+    width: 46%;
+    aspect-ratio: 9/19;
+    border-radius: 34px;
+    border: 2px solid rgba(255,255,255,.14);
+    background: linear-gradient(160deg, var(--v-a, #3a5fce), var(--v-b, #17203a));
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,.6);
+  }
+  .panel{ display:flex; flex-direction:column; gap: 28px; }
+  .group-label{ font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+  .options{ display:flex; flex-wrap: wrap; gap: 8px; }
+  .opt{
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--text);
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .opt:hover{ border-color: var(--accent-2); }
+  .opt.active{ border-color: var(--accent); background: var(--panel-2); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .opt.color-opt{ display:flex; align-items:center; gap:8px; }
+  .swatch{ width: 14px; height:14px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); }
+  .price-block{ margin-top: 8px; padding-top: 24px; border-top: 1px solid var(--line); }
+  .price{ font-size: 40px; font-weight: 700; letter-spacing: -0.01em; }
+  .price-note{ color: var(--muted); font-size: 13px; margin-top: 4px;}
+  .buy{
+    margin-top: 20px; width: 100%; padding: 16px; border: none; border-radius: 12px;
+    background: var(--accent); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer;
+  }
+  .buy:hover{ filter: brightness(1.08); }
+  .state{ color: var(--muted); font-size: 14px; }
 </style>
 </head>
 <body>
   <div id="site-header"></div>
-
-  <section class="hero" id="homeHero" hidden>
-    <div class="hero-visual"></div>
-    <div class="hero-inner">
-      <h1>iJoy</h1>
-      <p>Техника Apple по лучшим ценам</p>
-      <a href="index.html?cat=apple" class="btn-pill">Каталог</a>
-    </div>
-  </section>
-
-  <section id="catalogWrapSection">
-    <div class="wrap" id="catalogWrap">
-      <h2 id="homeCatalogHeading" hidden>Каталог <span class="accent">товаров</span></h2>
-      <div class="crumbs" id="crumbs"></div>
-      <h1 id="pageTitle">Загрузка…</h1>
-      <div id="app"><div class="state">Загружаю каталог…</div></div>
-    </div>
-
-    <div class="cta-band" id="notFoundCta" hidden>
-      <h3>Не нашли нужный гаджет?</h3>
-      <p>Оставьте заявку сейчас, перезвоним через 15 минут!</p>
-      <form class="quick-form" data-quick-form data-form-type="Не нашли гаджет">
-        <input type="text" name="name" placeholder="Ваше имя*" required>
-        <input type="tel" name="phone" placeholder="+7 (000) 000-00-00" required>
-        <button type="submit">Отправить</button>
-      </form>
-      <div class="form-status" style="text-align:center"></div>
-      <p class="consent-note">Нажимая на кнопку, вы даёте согласие на обработку своих персональных данных и соглашаетесь с <a href="policy.html">политикой конфиденциальности</a></p>
-    </div>
-  </section>
-
-  <section class="features-dark" id="homeFeatures" hidden>
-    <div class="features-inner">
-      <div class="features-text">
-        <h2>Ваш надежный <span class="accent">продавец</span></h2>
-        <p>Мы доставляем все наши товары точно в срок и следим за тем, чтобы весь процесс покупки в интернет магазине iJoy store — всегда был качественным на каждом этапе покупки.</p>
-        <p>Наши специалисты всегда Вам все подскажут и проинформируют о состоянии Вашего заказа.</p>
-        <p>Работаем для Вас: Пн-Вс с 11:00 до 20:00.</p>
-        <a href="https://t.me/iPhoneJoy_ru" target="_blank" rel="noopener" class="btn-pill">Подобрать gadget</a>
-      </div>
-      <div class="features-icons">
-        <div class="feature-circle">
-          <svg viewBox="0 0 24 24"><path d="M8 3H3v5M21 8V3h-5M16 21h5v-5M3 16v5h5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="feature-circle solid">
-          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4" stroke-linecap="round"/></svg>
-        </div>
-        <div class="feature-circle solid">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="feature-circle">
-          <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 2.5-5 6-5s6 2 6 5" stroke-linecap="round"/><circle cx="18" cy="9" r="2.3"/><path d="M15.5 20c.2-2.2 1.7-3.7 3.5-3.9" stroke-linecap="round"/></svg>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="faq-section" id="homeFaq" hidden>
-    <h2 class="faq-heading">Популярные <span class="accent">вопросы</span></h2>
-    <div class="faq-list">
-      <details class="faq-item">
-        <summary><span><span class="faq-num">1.</span> Как происходит оплата товара?</span></summary>
-        <div class="faq-body">Наличными или картой при получении — курьеру или в момент самовывоза. Полная предоплата не требуется.</div>
-      </details>
-      <details class="faq-item">
-        <summary><span><span class="faq-num">4.</span> Пришел другой товар?</span></summary>
-        <div class="faq-body">Свяжитесь с нами сразу же в Telegram или по телефону — разберёмся и заменим товар на нужный.</div>
-      </details>
-      <details class="faq-item">
-        <summary><span><span class="faq-num">2.</span> Гарантии на устройства?</span></summary>
-        <div class="faq-body">12 месяцев гарантии на заводской брак в нашем сервисном центре. Подробности на странице <a href="guarantee.html">«Гарантия»</a>.</div>
-      </details>
-      <details class="faq-item">
-        <summary><span><span class="faq-num">5.</span> Продаем гаджеты оптом?</span></summary>
-        <div class="faq-body">Да, рассматриваем оптовые запросы — напишите нам в Telegram, обсудим условия.</div>
-      </details>
-      <details class="faq-item">
-        <summary><span><span class="faq-num">3.</span> Как работает доставка?</span></summary>
-        <div class="faq-body">Курьером по Москве и области, а также Яндекс Доставкой и СДЭК по всей России. Подробности на странице <a href="delivery.html">«Доставка»</a>.</div>
-      </details>
-    </div>
-  </section>
-
-  <section class="feedback-dark" id="homeFeedback" hidden>
-    <div class="feedback-inner">
-      <h2>Обратная <span class="accent">связь</span></h2>
-      <p>Ответим на все интересующие вопросы!</p>
-      <form class="underline-form" data-quick-form data-form-type="Обратная связь">
-        <input type="text" name="name" placeholder="Ваше имя*" required>
-        <input type="tel" name="phone" placeholder="+7 (000) 000-00-00" required>
-        <textarea name="comment" placeholder="Ваш вопрос (необязательно)"></textarea>
-        <button type="submit" class="btn-pill light">Отправить</button>
-        <div class="form-status" style="text-align:center"></div>
-      </form>
-      <p class="consent-note">Нажимая на кнопку, вы даёте согласие на обработку своих персональных данных и соглашаетесь с <a href="policy.html">политикой конфиденциальности</a></p>
-    </div>
-  </section>
+  <div class="wrap">
+    <div class="crumbs" id="crumbs"></div>
+    <h1 id="pageTitle">Загрузка…</h1>
+    <div id="app"><div class="state">Загружаю каталог…</div></div>
+  </div>
 
 <script>
 const COLOR_HEX = {
@@ -235,19 +203,6 @@ const catKey = params.get("cat");
 const subKey = params.get("sub");
 const modelKey = params.get("model");
 document.body.dataset.page = catKey ? "catalog" : "home";
-
-// Главная (без ?cat=) показывает хиро/преимущества/FAQ/обратную связь вокруг плиток каталога;
-// страницы каталога (?cat=...) показывают только сам каталог/товар в обычной светлой обёртке.
-if (!catKey) {
-  document.getElementById("homeHero").hidden = false;
-  document.getElementById("homeFeatures").hidden = false;
-  document.getElementById("homeFaq").hidden = false;
-  document.getElementById("homeFeedback").hidden = false;
-  document.getElementById("notFoundCta").hidden = false;
-  document.getElementById("homeCatalogHeading").hidden = false;
-  document.getElementById("pageTitle").hidden = true;
-  document.getElementById("catalogWrapSection").classList.add("is-home");
-}
 
 function setCrumbs(parts){
   document.getElementById("crumbs").innerHTML = parts

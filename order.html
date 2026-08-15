@@ -56,9 +56,8 @@
   <script src="js/cart.js"></script>
 <script src="js/layout.js"></script>
   <script>
-    // Замени на реальный адрес после деплоя form-notify на Timeweb
-    const NOTIFY_ENDPOINT = "https://stakanmaksa-pixel-form-notify-9363.twc1.net/submit";
-
+    // NOTIFY_ENDPOINT уже объявлен в js/layout.js (подключён выше) - переиспользуем его,
+    // повторное объявление const здесь ломало синтаксис всего этого блока скрипта.
     const form = document.getElementById("orderForm");
 
     // Если пришли по ссылке "Купить" с товарной страницы - подставляем товар в поле

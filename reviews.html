@@ -49,9 +49,8 @@
   <script src="js/cart.js"></script>
 <script src="js/layout.js"></script>
   <script>
-    // Замени на реальный адрес после деплоя form-notify на Timeweb
-    const NOTIFY_ENDPOINT = "https://stakanmaksa-pixel-form-notify-9363.twc1.net/submit";
-
+    // NOTIFY_ENDPOINT уже объявлен в js/layout.js (подключён выше) - переиспользуем его,
+    // повторное объявление const здесь ломало синтаксис всего этого блока скрипта.
     function renderStars(n) {
       const full = "★".repeat(n);
       const empty = "☆".repeat(5 - n);
